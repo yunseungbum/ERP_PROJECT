@@ -1,0 +1,174 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(45, 143, 70, 0.16), transparent 34%),
+    #f2f7f3;
+}
+
+.login-card {
+  width: min(100%, 480px);
+  padding: 44px;
+  border: 1px solid #dfe7df;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(28, 65, 39, 0.12);
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: #237a3b;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.login-card h1 {
+  margin: 0;
+  color: #15251a;
+  font-size: clamp(32px, 7vw, 44px);
+  line-height: 1.15;
+}
+
+.login-description {
+  margin: 16px 0 30px;
+  color: #627066;
+  line-height: 1.65;
+}
+
+.login-form {
+  display: grid;
+  gap: 20px;
+}
+
+.form-field {
+  display: grid;
+  gap: 8px;
+}
+
+.form-field label {
+  color: #293b2e;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #cbd7cd;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #15251a;
+  outline: none;
+}
+
+.form-field input:focus {
+  border-color: #237a3b;
+  box-shadow: 0 0 0 3px rgba(35, 122, 59, 0.12);
+}
+
+.form-field input[aria-invalid='true'] {
+  border-color: #c93636;
+}
+
+.field-error {
+  margin: 0;
+  color: #b42d2d;
+  font-size: 13px;
+}
+
+.server-error {
+  padding: 13px 14px;
+  border-radius: 10px;
+  background: #fff0f0;
+  color: #a22525;
+  font-size: 14px;
+}
+
+.login-form button,
+.secondary-button {
+  width: 100%;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #237a3b;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.login-form button:hover:not(:disabled),
+.secondary-button:hover {
+  background: #1a632f;
+}
+
+.login-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.test-account {
+  display: grid;
+  gap: 5px;
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f3f7f3;
+  color: #59675c;
+  font-size: 13px;
+}
+
+.test-account strong {
+  margin-bottom: 2px;
+  color: #293b2e;
+}
+
+.success-card {
+  text-align: center;
+}
+
+.user-summary {
+  display: grid;
+  gap: 12px;
+  margin: 28px 0;
+  text-align: left;
+}
+
+.user-summary div {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f3f7f3;
+}
+
+.user-summary dt {
+  color: #627066;
+}
+
+.user-summary dd {
+  margin: 0;
+  color: #1c3c25;
+  font-weight: 800;
+}
+
+.secondary-button {
+  background: #33483a;
+}
+
+.temporary-notice {
+  margin: 18px 0 0;
+  color: #7a877d;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media (max-width: 540px) {
+  .login-card {
+    padding: 32px 24px;
+  }
+}

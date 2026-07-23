@@ -1,16 +1,18 @@
+using BuddyErp.Api.DTOs.Health;
+using BuddyErp.Api.Services.Health;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuddyErp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class HealthController : ControllerBase
+public class HealthController(IHealthService healthService) : ControllerBase
 {
     [HttpGet]
     public ActionResult<HealthResponse> Get()
     {
-        return Ok(new HealthResponse("ok", DateTimeOffset.UtcNow));
+        var response = healthService.GetStatus();
+
+        return Ok(response);
     }
 }
-
-public sealed record HealthResponse(string Status, DateTimeOffset CheckedAt);

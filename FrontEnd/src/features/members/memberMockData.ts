@@ -1,0 +1,40 @@
+import type { MemberResponse } from './memberTypes'
+
+export const memberMockData: MemberResponse[] = [
+  {
+    memberId: 1,
+    memberName: '김민준',
+    primaryPosition: 'Striker',
+    secondaryPosition: 'Winger',
+    phoneNumber: '010-1234-5678',
+    birthYear: 1995,
+    notes: '주장, 오른발',
+    isActive: true,
+    createdAt: '2026-07-01T09:00:00',
+    updatedAt: '2026-07-01T09:00:00',
+  },
+  {
+    memberId: 2,
+    memberName: '이도윤',
+    primaryPosition: 'CenterBack',
+    secondaryPosition: 'DefensiveMidfielder',
+    phoneNumber: '010-2345-6789',
+    birthYear: 1992,
+    notes: '세트피스 수비 담당',
+    isActive: true,
+    createdAt: '2026-07-02T09:00:00',
+    updatedAt: '2026-07-02T09:00:00',
+  },
+  {
+    memberId: 3,
+    memberName: '박서준',
+    primaryPosition: 'Goalkeeper',
+    secondaryPosition: null,
+    phoneNumber: '010-3456-7890',
+    birthYear: 1998,
+    notes: '',
+    isActive: true,
+    createdAt: '2026-07-03T09:00:00',
+    updatedAt: '2026-07-03T09:00:00',
+  },
+]
