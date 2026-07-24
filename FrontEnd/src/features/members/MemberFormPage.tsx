@@ -1,9 +1,15 @@
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ApiError } from '../../shared/api/apiClient'
 import { hasPermission } from '../../shared/auth/hasPermission'
 import type { UserRole } from '../../shared/auth/roles'
 import { MemberForm } from './MemberForm'
-import { memberMockData } from './memberMockData'
-import type { MemberSaveRequest } from './memberTypes'
+import {
+  createMember,
+  getMember,
+  updateMember,
+} from './memberApi'
+import type { MemberResponse, MemberSaveRequest } from './memberTypes'
 import './members.css'
 
 type MemberFormPageProps = {
@@ -17,16 +23,42 @@ const emptyMemberValues: MemberSaveRequest = {
   phoneNumber: '',
   birthYear: 0,
   notes: '',
+  memberStatus: 'Active',
 }
 
 export function MemberFormPage({ userRoles }: MemberFormPageProps) {
   const navigate = useNavigate()
   const { memberId } = useParams()
   const canWriteMembers = hasPermission(userRoles, 'members', 'write')
-  const editingMember = memberId
-    ? memberMockData.find((member) => member.memberId === Number(memberId))
-    : undefined
   const isEditMode = Boolean(memberId)
+  const parsedMemberId = Number(memberId)
+  const [editingMember, setEditingMember] =
+    useState<MemberResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(isEditMode)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!isEditMode || !canWriteMembers) return
+
+    if (!Number.isSafeInteger(parsedMemberId) || parsedMemberId <= 0) {
+      setErrorMessage('올바르지 않은 회원 번호입니다.')
+      setIsLoading(false)
+      return
+    }
+
+    async function loadMember() {
+      try {
+        setEditingMember(await getMember(parsedMemberId))
+      } catch (error) {
+        setErrorMessage(getMemberFormErrorMessage(error))
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    void loadMember()
+  }, [canWriteMembers, isEditMode, parsedMemberId])
 
   if (!canWriteMembers) {
     return (
@@ -40,12 +72,22 @@ export function MemberFormPage({ userRoles }: MemberFormPageProps) {
     )
   }
 
-  if (isEditMode && !editingMember) {
+  if (isLoading) {
+    return (
+      <main className="dashboard-main">
+        <section className="member-form-message">
+          <h1>회원정보를 불러오는 중입니다.</h1>
+        </section>
+      </main>
+    )
+  }
+
+  if (isEditMode && (!editingMember || errorMessage)) {
     return (
       <main className="dashboard-main">
         <section className="member-form-message">
           <h1>회원을 찾을 수 없습니다.</h1>
-          <p>존재하지 않는 회원 번호입니다.</p>
+          <p>{errorMessage ?? '존재하지 않는 회원 번호입니다.'}</p>
           <Link to="/members">회원 목록으로 돌아가기</Link>
         </section>
       </main>
@@ -60,12 +102,29 @@ export function MemberFormPage({ userRoles }: MemberFormPageProps) {
         phoneNumber: editingMember.phoneNumber,
         birthYear: editingMember.birthYear,
         notes: editingMember.notes,
+        memberStatus: editingMember.memberStatus,
       }
     : emptyMemberValues
 
-  function handleSubmit(values: MemberSaveRequest) {
-    console.info('백엔드 연결 전 회원 입력값:', values)
-    window.alert('입력값 검사를 통과했습니다. DB 연결 후 실제로 저장됩니다.')
+  async function handleSubmit(values: MemberSaveRequest) {
+    setIsSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      if (isEditMode) {
+        await updateMember(parsedMemberId, values)
+      } else {
+        await createMember(values)
+      }
+
+      navigate('/members')
+    } catch (error) {
+      const message = getMemberFormErrorMessage(error)
+      setErrorMessage(message)
+      window.alert(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -80,10 +139,22 @@ export function MemberFormPage({ userRoles }: MemberFormPageProps) {
         <MemberForm
           initialValues={initialValues}
           submitLabel={isEditMode ? '수정 내용 저장' : '회원 추가'}
+          isSubmitting={isSubmitting}
           onSubmit={handleSubmit}
           onCancel={() => navigate('/members')}
         />
       </section>
     </main>
   )
+}
+
+function getMemberFormErrorMessage(error: unknown) {
+  if (error instanceof ApiError) {
+    if (error.status === 401) return '로그인이 만료되었습니다. 다시 로그인해 주세요.'
+    if (error.status === 403) return '회원정보를 저장할 권한이 없습니다.'
+    if (error.status === 404) return '수정할 회원을 찾을 수 없습니다.'
+    return error.message
+  }
+
+  return '회원정보 서버에 연결할 수 없습니다.'
 }

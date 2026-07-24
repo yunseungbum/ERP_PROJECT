@@ -43,6 +43,41 @@ export async function apiPost<TResponse, TRequest>(
   return response.json() as Promise<TResponse>
 }
 
+export async function apiPut<TResponse, TRequest>(
+  path: string,
+  body: TRequest,
+): Promise<TResponse> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    method: 'PUT',
+    headers: createHeaders(true),
+    body: JSON.stringify(body),
+  })
+
+  await ensureSuccess(response)
+
+  return response.json() as Promise<TResponse>
+}
+
+export async function apiDelete(path: string): Promise<void> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    method: 'DELETE',
+    headers: createHeaders(),
+  })
+
+  await ensureSuccess(response)
+}
+
+export async function apiDeleteWithResponse<T>(path: string): Promise<T> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    method: 'DELETE',
+    headers: createHeaders(),
+  })
+
+  await ensureSuccess(response)
+
+  return response.json() as Promise<T>
+}
+
 export function getApiUrl(path: string): string {
   return `${apiBaseUrl}${path}`
 }

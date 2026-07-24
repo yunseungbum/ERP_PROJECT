@@ -13,7 +13,7 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
         return await dbContext.Members
             .AsNoTracking()
             .Where(member => member.IsActive)
-            .OrderBy(member => member.MemberName)
+            .OrderBy(member => member.MemberId)
             .Select(member => new MemberResponse(
                 member.MemberId,
                 member.MemberName,
@@ -22,6 +22,7 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
                 member.PhoneNumber,
                 member.BirthYear,
                 member.Notes,
+                member.MemberStatus,
                 member.IsActive,
                 member.CreatedAt,
                 member.UpdatedAt))
@@ -44,6 +45,7 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
                 member.PhoneNumber,
                 member.BirthYear,
                 member.Notes,
+                member.MemberStatus,
                 member.IsActive,
                 member.CreatedAt,
                 member.UpdatedAt))
@@ -64,7 +66,8 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
             SecondaryPosition = request.SecondaryPosition,
             PhoneNumber = request.PhoneNumber.Trim(),
             BirthYear = request.BirthYear,
-            Notes = request.Notes.Trim(),
+            Notes = (request.Notes ?? string.Empty).Trim(),
+            MemberStatus = request.MemberStatus,
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now,
@@ -97,7 +100,8 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
         member.SecondaryPosition = request.SecondaryPosition;
         member.PhoneNumber = request.PhoneNumber.Trim();
         member.BirthYear = request.BirthYear;
-        member.Notes = request.Notes.Trim();
+        member.Notes = (request.Notes ?? string.Empty).Trim();
+        member.MemberStatus = request.MemberStatus;
         member.UpdatedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -109,6 +113,9 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
         long memberId,
         CancellationToken cancellationToken = default)
     {
+        await using var transaction = await dbContext.Database
+            .BeginTransactionAsync(cancellationToken);
+
         var member = await dbContext.Members.SingleOrDefaultAsync(
             member => member.MemberId == memberId && member.IsActive,
             cancellationToken);
@@ -118,10 +125,21 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
             return false;
         }
 
+        var futureMatchParticipants = await dbContext.MatchParticipants
+            .Where(participant =>
+                participant.MemberId == memberId &&
+                participant.Schedule.StartsAt > DateTime.Now)
+            .ToListAsync(cancellationToken);
+
+        // match_participants를 삭제하면 DB의 외래키 설정에 따라
+        // 미래 경기의 quarter_lineup_players도 함께 삭제됩니다.
+        dbContext.MatchParticipants.RemoveRange(futureMatchParticipants);
+
         member.IsActive = false;
         member.UpdatedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return true;
     }
@@ -160,9 +178,14 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
             throw new ArgumentException("올바른 출생연도가 아닙니다.");
         }
 
-        if (request.Notes.Length > 1000)
+        if (request.Notes?.Length > 1000)
         {
             throw new ArgumentException("비고는 1,000자 이하여야 합니다.");
+        }
+
+        if (!MemberStatusCodes.IsValid(request.MemberStatus))
+        {
+            throw new ArgumentException("올바른 회원 활동 상태가 아닙니다.");
         }
     }
 
@@ -176,6 +199,7 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
             member.PhoneNumber,
             member.BirthYear,
             member.Notes,
+            member.MemberStatus,
             member.IsActive,
             member.CreatedAt,
             member.UpdatedAt);

@@ -4,6 +4,7 @@ using BuddyErp.Api.Data.Seed;
 using BuddyErp.Api.Options;
 using BuddyErp.Api.Services.Auth;
 using BuddyErp.Api.Services.Health;
+using BuddyErp.Api.Services.Formations;
 using BuddyErp.Api.Services.Members;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -71,6 +72,7 @@ builder.Services.AddScoped<IHealthService, HealthService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IFormationService, FormationService>();
 
 builder.Services.Configure<InitialAccountPasswordsOptions>(
     builder.Configuration.GetSection(InitialAccountPasswordsOptions.SectionName));

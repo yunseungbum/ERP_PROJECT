@@ -26,4 +26,10 @@ public sealed record MemberSaveRequest(
     int BirthYear,
 
     [MaxLength(1000)]
-    string Notes);
+    string Notes,
+
+    [Required(ErrorMessage = "회원 활동 상태를 선택해 주세요.")]
+    [RegularExpression(
+        MemberStatusCodes.ValidationPattern,
+        ErrorMessage = "올바른 회원 활동 상태를 선택해 주세요.")]
+    string MemberStatus);

@@ -1,8 +1,36 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getMembers } from '../members/memberApi'
 import { dashboardNotices, dashboardSummaries } from './dashboardData'
 import './dashboard.css'
 
 export function DashboardPage() {
+  const [memberCount, setMemberCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadMemberCount() {
+      try {
+        const members = await getMembers()
+
+        if (isMounted) {
+          setMemberCount(members.length)
+        }
+      } catch {
+        if (isMounted) {
+          setMemberCount(null)
+        }
+      }
+    }
+
+    void loadMemberCount()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   return (
     <main className="dashboard-main">
         <header className="dashboard-header">
@@ -32,7 +60,13 @@ export function DashboardPage() {
             <Link className="summary-card" key={summary.title} to={summary.path}>
               <span className="summary-icon" aria-hidden="true">{summary.icon}</span>
               <strong>{summary.title}</strong>
-              <span>{summary.description}</span>
+              <span>
+                {summary.path === '/members'
+                  ? memberCount === null
+                    ? '회원 수를 불러오는 중'
+                    : `등록 회원 ${memberCount}명`
+                  : summary.description}
+              </span>
             </Link>
           ))}
         </section>

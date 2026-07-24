@@ -50,6 +50,21 @@
   box-shadow: 0 12px 32px rgba(33, 75, 133, 0.08);
 }
 
+.member-list-message {
+  margin: 0;
+  padding: 32px;
+  color: #627066;
+  text-align: center;
+}
+
+.member-list-message.is-error {
+  color: #a22525;
+}
+
+.member-list-message button {
+  margin-top: 12px;
+}
+
 .members-table-wrap {
   overflow-x: auto;
 }
@@ -83,14 +98,59 @@
   background: #fbfdff;
 }
 
+.members-table th:nth-child(4),
+.members-table td:nth-child(4) {
+  width: 150px;
+  white-space: nowrap;
+}
+
+.members-table th:nth-child(5),
+.members-table td:nth-child(5) {
+  width: 80px;
+  white-space: nowrap;
+}
+
+.members-table th:nth-child(6),
+.members-table td:nth-child(6) {
+  width: 300px;
+}
+
 .member-name {
   color: #10213d;
   font-weight: 800;
 }
 
 .member-notes {
-  max-width: 180px;
+  width: 300px;
+  max-width: 300px;
   color: #6f7e92;
+}
+
+.member-notes-toggle {
+  display: block;
+  width: 300px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.member-notes-toggle:hover {
+  color: #1266d6;
+}
+
+.member-notes-toggle.is-expanded {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
 }
 
 .position-badge,
@@ -115,6 +175,11 @@
 .status-badge.is-active {
   background: #e8f8ee;
   color: #27834a;
+}
+
+.status-badge.is-paused {
+  background: #fff0f0;
+  color: #d33b3b;
 }
 
 .member-actions {

@@ -61,7 +61,10 @@ export function AppRoutes({
         <Route path="/expenses" element={<ExpensesPage />} />
         <Route path="/uniforms" element={<UniformsPage />} />
         <Route path="/inventory" element={<InventoryPage />} />
-        <Route path="/formations" element={<FormationPage />} />
+        <Route
+          path="/formations"
+          element={<FormationPage userRoles={currentUser?.roles ?? []} />}
+        />
       </Route>
 
       <Route

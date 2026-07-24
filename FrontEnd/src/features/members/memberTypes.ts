@@ -8,6 +8,8 @@ export type MemberPosition =
   | 'Winger'
   | 'Striker'
 
+export type MemberStatus = 'Active' | 'Paused'
+
 export type MemberSaveRequest = {
   memberName: string
   primaryPosition: MemberPosition
@@ -15,6 +17,7 @@ export type MemberSaveRequest = {
   phoneNumber: string
   birthYear: number
   notes: string
+  memberStatus: MemberStatus
 }
 
 export type MemberResponse = MemberSaveRequest & {

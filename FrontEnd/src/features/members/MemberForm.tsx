@@ -5,7 +5,8 @@ import type { MemberPosition, MemberSaveRequest } from './memberTypes'
 type MemberFormProps = {
   initialValues: MemberSaveRequest
   submitLabel: string
-  onSubmit: (values: MemberSaveRequest) => void
+  isSubmitting: boolean
+  onSubmit: (values: MemberSaveRequest) => Promise<void>
   onCancel: () => void
 }
 
@@ -14,6 +15,7 @@ type MemberFormErrors = Partial<Record<keyof MemberSaveRequest, string>>
 export function MemberForm({
   initialValues,
   submitLabel,
+  isSubmitting,
   onSubmit,
   onCancel,
 }: MemberFormProps) {
@@ -46,12 +48,12 @@ export function MemberForm({
     return Object.keys(nextErrors).length === 0
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     if (!validateForm()) return
 
-    onSubmit({
+    await onSubmit({
       ...values,
       memberName: values.memberName.trim(),
       phoneNumber: values.phoneNumber.trim(),
@@ -104,6 +106,23 @@ export function MemberForm({
           {errors.birthYear && <small>{errors.birthYear}</small>}
         </label>
 
+        <label className="member-form-field">
+          <span>활동 상태 <strong>*</strong></span>
+          <select
+            value={values.memberStatus}
+            onChange={(event) =>
+              updateValue(
+                'memberStatus',
+                event.target.value as MemberSaveRequest['memberStatus'],
+              )
+            }
+          >
+            <option value="Active">활동</option>
+            <option value="Paused">중단</option>
+          </select>
+          <small>중단 상태에서는 새로운 월 회비를 청구하지 않습니다.</small>
+        </label>
+
         <label className="member-form-field member-notes-field">
           <span>비고</span>
           <textarea rows={5} maxLength={1000} placeholder="회원 관련 메모를 입력해 주세요." value={values.notes} onChange={(event) => updateValue('notes', event.target.value)} />
@@ -113,8 +132,10 @@ export function MemberForm({
       </div>
 
       <div className="member-form-actions">
-        <button type="button" className="form-cancel-button" onClick={onCancel}>취소</button>
-        <button type="submit" className="form-submit-button">{submitLabel}</button>
+        <button type="button" className="form-cancel-button" onClick={onCancel} disabled={isSubmitting}>취소</button>
+        <button type="submit" className="form-submit-button" disabled={isSubmitting}>
+          {isSubmitting ? '저장 중...' : submitLabel}
+        </button>
       </div>
     </form>
   )

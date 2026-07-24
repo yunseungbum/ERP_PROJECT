@@ -1,5 +1,6 @@
 import type { LoginResponse } from '../login/loginTypes'
 import { NavLink } from 'react-router-dom'
+import buddyErpBrand from '../../assets/buddy-erp-brand.png'
 import { dashboardMenuItems } from './dashboardData'
 
 type SidebarProps = {
@@ -11,7 +12,9 @@ export function Sidebar({ user, onLogout }: SidebarProps) {
   return (
     <aside className="dashboard-sidebar">
       <div className="sidebar-brand">
-        <span className="brand-mark">FC</span>
+        <span className="brand-mark">
+          <img src={buddyErpBrand} alt="Buddy ERP" />
+        </span>
         <div><strong>Buddy FC</strong><span>Manager ERP</span></div>
       </div>
 

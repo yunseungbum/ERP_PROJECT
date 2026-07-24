@@ -8,6 +8,7 @@ public sealed record MemberResponse(
     string PhoneNumber,
     int BirthYear,
     string Notes,
+    string MemberStatus,
     bool IsActive,
     DateTime CreatedAt,
     DateTime UpdatedAt);
