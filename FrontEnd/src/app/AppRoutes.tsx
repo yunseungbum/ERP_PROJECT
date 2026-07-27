@@ -10,7 +10,6 @@ import type { LoginResponse } from '../features/login/loginTypes'
 import { MembersPage } from '../features/members/MembersPage'
 import { MemberFormPage } from '../features/members/MemberFormPage'
 import { SchedulePage } from '../features/schedule/SchedulePage'
-import { UniformsPage } from '../features/uniforms/UniformsPage'
 import { MainLayout } from '../shared/layout/MainLayout'
 
 type AppRoutesProps = {
@@ -42,7 +41,10 @@ export function AppRoutes({
             : <Navigate to="/login" replace />
         }
       >
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/dashboard"
+          element={<DashboardPage userRoles={currentUser?.roles ?? []} />}
+        />
         <Route
           path="/members"
           element={<MembersPage userRoles={currentUser?.roles ?? []} />}
@@ -55,12 +57,24 @@ export function AppRoutes({
           path="/members/:memberId/edit"
           element={<MemberFormPage userRoles={currentUser?.roles ?? []} />}
         />
-        <Route path="/attendance" element={<AttendancePage />} />
-        <Route path="/schedules" element={<SchedulePage />} />
+        <Route
+          path="/attendance"
+          element={<AttendancePage userRoles={currentUser?.roles ?? []} />}
+        />
+        <Route
+          path="/schedules"
+          element={<SchedulePage userRoles={currentUser?.roles ?? []} />}
+        />
         <Route path="/dues" element={<DuesPage />} />
-        <Route path="/expenses" element={<ExpensesPage />} />
-        <Route path="/uniforms" element={<UniformsPage />} />
-        <Route path="/inventory" element={<InventoryPage />} />
+        <Route
+          path="/expenses"
+          element={<ExpensesPage userRoles={currentUser?.roles ?? []} />}
+        />
+        <Route path="/uniforms" element={<Navigate to="/inventory" replace />} />
+        <Route
+          path="/inventory"
+          element={<InventoryPage userRoles={currentUser?.roles ?? []} />}
+        />
         <Route
           path="/formations"
           element={<FormationPage userRoles={currentUser?.roles ?? []} />}

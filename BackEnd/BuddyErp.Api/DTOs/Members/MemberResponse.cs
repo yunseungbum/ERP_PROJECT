@@ -9,6 +9,8 @@ public sealed record MemberResponse(
     int BirthYear,
     string Notes,
     string MemberStatus,
+    bool HasUniform,
+    int? UniformNumber,
     bool IsActive,
     DateTime CreatedAt,
     DateTime UpdatedAt);

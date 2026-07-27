@@ -24,6 +24,8 @@ const emptyMemberValues: MemberSaveRequest = {
   birthYear: 0,
   notes: '',
   memberStatus: 'Active',
+  hasUniform: false,
+  uniformNumber: null,
 }
 
 export function MemberFormPage({ userRoles }: MemberFormPageProps) {
@@ -103,6 +105,8 @@ export function MemberFormPage({ userRoles }: MemberFormPageProps) {
         birthYear: editingMember.birthYear,
         notes: editingMember.notes,
         memberStatus: editingMember.memberStatus,
+        hasUniform: editingMember.hasUniform,
+        uniformNumber: editingMember.uniformNumber,
       }
     : emptyMemberValues
 

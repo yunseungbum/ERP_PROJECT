@@ -58,6 +58,21 @@ export async function apiPut<TResponse, TRequest>(
   return response.json() as Promise<TResponse>
 }
 
+export async function apiPatch<TResponse, TRequest>(
+  path: string,
+  body: TRequest,
+): Promise<TResponse> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    method: 'PATCH',
+    headers: createHeaders(true),
+    body: JSON.stringify(body),
+  })
+
+  await ensureSuccess(response)
+
+  return response.json() as Promise<TResponse>
+}
+
 export async function apiDelete(path: string): Promise<void> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     method: 'DELETE',

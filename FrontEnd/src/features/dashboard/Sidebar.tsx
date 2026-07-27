@@ -11,12 +11,16 @@ type SidebarProps = {
 export function Sidebar({ user, onLogout }: SidebarProps) {
   return (
     <aside className="dashboard-sidebar">
-      <div className="sidebar-brand">
+      <NavLink
+        className="sidebar-brand"
+        to="/dashboard"
+        aria-label="대시보드로 이동"
+      >
         <span className="brand-mark">
           <img src={buddyErpBrand} alt="Buddy ERP" />
         </span>
         <div><strong>Buddy FC</strong><span>Manager ERP</span></div>
-      </div>
+      </NavLink>
 
       <nav className="sidebar-menu" aria-label="ERP 주요 메뉴">
         {dashboardMenuItems.map((item) => (

@@ -3,9 +3,14 @@ using BuddyErp.Api.Data.Entities;
 using BuddyErp.Api.Data.Seed;
 using BuddyErp.Api.Options;
 using BuddyErp.Api.Services.Auth;
+using BuddyErp.Api.Services.Attendance;
 using BuddyErp.Api.Services.Health;
 using BuddyErp.Api.Services.Formations;
 using BuddyErp.Api.Services.Members;
+using BuddyErp.Api.Services.Inventory;
+using BuddyErp.Api.Services.Schedules;
+using BuddyErp.Api.Services.Expenses;
+using BuddyErp.Api.Services.Announcements;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -70,9 +75,14 @@ builder.Services.AddAuthorization();
 // Controller가 구현 클래스가 아닌 인터페이스에 의존하도록 연결합니다.
 builder.Services.AddScoped<IHealthService, HealthService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAttendanceService, AttendanceService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IFormationService, FormationService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 
 builder.Services.Configure<InitialAccountPasswordsOptions>(
     builder.Configuration.GetSection(InitialAccountPasswordsOptions.SectionName));

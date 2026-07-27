@@ -100,6 +100,8 @@ export function MembersPage({ userRoles }: MembersPageProps) {
                 <th>나이</th>
                 <th>비고</th>
                 <th>상태</th>
+                <th>유니폼</th>
+                <th>등번호</th>
                 {(canWriteMembers || canDeleteMembers) && <th>관리</th>}
               </tr>
             </thead>
@@ -145,6 +147,12 @@ export function MembersPage({ userRoles }: MembersPageProps) {
                     }>
                       {member.memberStatus === 'Active' ? '활동' : '중단'}
                     </span>
+                  </td>
+                  <td>{member.hasUniform ? 'O' : 'X'}</td>
+                  <td>
+                    {member.hasUniform
+                      ? member.uniformNumber ?? '-'
+                      : '-'}
                   </td>
                   {(canWriteMembers || canDeleteMembers) && (
                     <td>

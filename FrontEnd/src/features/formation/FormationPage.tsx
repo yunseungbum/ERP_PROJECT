@@ -11,7 +11,6 @@ import type {
   FormationCode,
 } from './formationTypes'
 import { getMembers } from '../members/memberApi'
-import { memberPositionLabels } from '../members/memberPositions'
 import type { MemberResponse } from '../members/memberTypes'
 import { hasPermission } from '../../shared/auth/hasPermission'
 import type { UserRole } from '../../shared/auth/roles'
@@ -174,7 +173,7 @@ export function FormationPage({ userRoles }: FormationPageProps) {
     async function loadPage() {
       try {
         const [memberResponse, boardResponse] = await Promise.all([
-          canManageFormations ? getMembers() : Promise.resolve([]),
+          getMembers(),
           getUpcomingFormationBoard(),
         ])
 
@@ -204,6 +203,26 @@ export function FormationPage({ userRoles }: FormationPageProps) {
     }
   }, [canManageFormations])
 
+  useEffect(() => {
+    const now = new Date()
+    const nextMidnight = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0,
+      0,
+      0,
+      500,
+    )
+    const millisecondsUntilNextDay =
+      nextMidnight.getTime() - now.getTime()
+    const midnightTimer = window.setTimeout(() => {
+      window.location.reload()
+    }, millisecondsUntilNextDay)
+
+    return () => window.clearTimeout(midnightTimer)
+  }, [])
+
   const participantMap = useMemo(
     () => new Map(
       participants.map((participant) => [
@@ -213,6 +232,23 @@ export function FormationPage({ userRoles }: FormationPageProps) {
     ),
     [participants],
   )
+
+  const memberMap = useMemo(
+    () => new Map(
+      members.map((member) => [member.memberId, member]),
+    ),
+    [members],
+  )
+
+  function getUniformLabel(participant: Participant) {
+    if (participant.isGuest) return '용병'
+    if (participant.memberId === null) return '-'
+
+    const member = memberMap.get(participant.memberId)
+    return member?.hasUniform && member.uniformNumber !== null
+      ? String(member.uniformNumber)
+      : '-'
+  }
 
   const isDraftChanged = useMemo(
     () => JSON.stringify(draftPlan) !== JSON.stringify(savedQuarterPlans[activeQuarter]),
@@ -609,7 +645,7 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                       }}
                     >
                       <span className="formation-shirt">
-                        {participant ? '●' : '+'}
+                        {participant ? getUniformLabel(participant) : '+'}
                       </span>
                       <span className="formation-player-name">
                         {participant?.participantName ?? '선택'}
@@ -652,7 +688,7 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                       )}
                       onDragEnd={() => setDraggedParticipantId(null)}
                     >
-                      <span>⚽</span>
+                      <span>{getUniformLabel(participant)}</span>
                       {participant.participantName}
                     </button>
                   ))
@@ -691,7 +727,11 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                       onChange={() => toggleMember(member.memberId)}
                     />
                     <span>{member.memberName}</span>
-                    <small>{memberPositionLabels[member.primaryPosition]}</small>
+                    <small>
+                      {member.hasUniform && member.uniformNumber !== null
+                        ? member.uniformNumber
+                        : '-'}
+                    </small>
                   </label>
                 ))}
               </div>
@@ -733,7 +773,14 @@ export function FormationPage({ userRoles }: FormationPageProps) {
 
           <section className="formation-participation-section">
             <div className="formation-panel-heading">
-              <h2>이번 주 참여 인원</h2>
+              <div>
+                <h2>이번 주 참여 인원</h2>
+                <p className="formation-participation-match">
+                  {matchStartsAt
+                    ? `${new Date(matchStartsAt).toLocaleDateString('ko-KR')} · ${matchTitle}`
+                    : '가장 가까운 경기 정보를 불러오는 중입니다.'}
+                </p>
+              </div>
               <span>{participants.length}명</span>
             </div>
 
@@ -758,7 +805,11 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                       <tr key={participant.participantId}>
                         <td>
                           {participant.participantName}
-                          {participant.isGuest && <small>용병</small>}
+                          <small>
+                            {participant.isGuest
+                              ? '용병'
+                              : `등번호 ${getUniformLabel(participant)}`}
+                          </small>
                         </td>
                         {participant.quarterParticipation.map((isPlaying, index) => (
                           <td key={`${participant.participantId}-${index}`}>

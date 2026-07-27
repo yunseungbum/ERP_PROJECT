@@ -1,13 +1,20 @@
 .members-page {
   align-self: start;
+  overflow: hidden;
+  width: min(1200px, calc(100% - 32px));
+  max-width: 1200px;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 4px 0 12px;
 }
 
 .members-header {
   display: flex;
   justify-content: space-between;
   align-items: end;
-  gap: 24px;
-  margin-bottom: 28px;
+  gap: 14px;
+  margin: 0 2px 10px;
 }
 
 .members-header p {
@@ -17,8 +24,8 @@
 }
 
 .members-header h1 {
-  margin: 0 0 8px;
-  font-size: clamp(28px, 4vw, 38px);
+  margin: 0 0 4px;
+  font-size: clamp(23px, 3vw, 30px);
 }
 
 .members-header span {
@@ -44,6 +51,12 @@
 
 .members-panel {
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  max-height: calc(100vh - 190px);
+  margin: 0 auto;
+  box-sizing: border-box;
   border: 1px solid #dce6f3;
   border-radius: 18px;
   background: #ffffff;
@@ -66,24 +79,43 @@
 }
 
 .members-table-wrap {
-  overflow-x: auto;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  max-height: calc(100vh - 192px);
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: contain;
+  scrollbar-color: #aac0dc #eef3f8;
+  scrollbar-width: thin;
 }
 
 .members-table {
   width: 100%;
-  min-width: 940px;
+  min-width: 920px;
   border-collapse: collapse;
-  text-align: left;
+  font-size: 12px;
+  text-align: center;
 }
 
 .members-table th,
 .members-table td {
-  padding: 17px 18px;
+  padding: 5px 6px;
+  border-right: 1px solid #dfe7f1;
   border-bottom: 1px solid #e9eff7;
   vertical-align: middle;
 }
 
+.members-table th:last-child,
+.members-table td:last-child {
+  border-right: 0;
+}
+
 .members-table th {
+  position: sticky;
+  z-index: 2;
+  top: 0;
   background: #f7faff;
   color: #66758b;
   font-size: 13px;
@@ -100,19 +132,29 @@
 
 .members-table th:nth-child(4),
 .members-table td:nth-child(4) {
-  width: 150px;
+  width: 96px;
   white-space: nowrap;
 }
 
 .members-table th:nth-child(5),
 .members-table td:nth-child(5) {
-  width: 80px;
+  width: 42px;
   white-space: nowrap;
 }
 
 .members-table th:nth-child(6),
 .members-table td:nth-child(6) {
-  width: 300px;
+  width: 250px;
+}
+
+.members-table th:nth-child(7),
+.members-table td:nth-child(7),
+.members-table th:nth-child(8),
+.members-table td:nth-child(8),
+.members-table th:nth-child(9),
+.members-table td:nth-child(9) {
+  width: 58px;
+  text-align: center;
 }
 
 .member-name {
@@ -121,20 +163,27 @@
 }
 
 .member-notes {
-  width: 300px;
-  max-width: 300px;
+  width: 250px;
+  max-width: 250px;
   color: #6f7e92;
+}
+
+.members-table th:nth-child(10),
+.members-table td:nth-child(10) {
+  width: 84px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .member-notes-toggle {
   display: block;
-  width: 300px;
+  width: 100%;
   padding: 0;
   border: 0;
   background: transparent;
   color: inherit;
   font: inherit;
-  text-align: left;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -156,7 +205,7 @@
 .position-badge,
 .status-badge {
   display: inline-flex;
-  padding: 6px 9px;
+  padding: 4px 7px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
@@ -184,12 +233,13 @@
 
 .member-actions {
   display: flex;
-  gap: 7px;
+  justify-content: center;
+  gap: 4px;
 }
 
 .member-actions a,
 .member-actions button {
-  padding: 7px 10px;
+  padding: 5px 6px;
   border-radius: 8px;
   background: #ffffff;
   font-size: 12px;
@@ -344,6 +394,10 @@
 }
 
 @media (max-width: 700px) {
+  .members-page {
+    width: calc(100% - 16px);
+  }
+
   .members-header {
     align-items: stretch;
     flex-direction: column;

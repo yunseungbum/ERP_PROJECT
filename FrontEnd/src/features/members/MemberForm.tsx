@@ -44,6 +44,13 @@ export function MemberForm({
     }
     if (values.notes.length > 1000) nextErrors.notes = '비고는 1,000자 이하로 입력해 주세요.'
 
+    if (values.hasUniform &&
+        (values.uniformNumber === null ||
+          values.uniformNumber < 1 ||
+          values.uniformNumber > 99)) {
+      nextErrors.uniformNumber = '등번호는 1부터 99까지 입력해 주세요.'
+    }
+
     setErrors(nextErrors)
     return Object.keys(nextErrors).length === 0
   }
@@ -121,6 +128,45 @@ export function MemberForm({
             <option value="Paused">중단</option>
           </select>
           <small>중단 상태에서는 새로운 월 회비를 청구하지 않습니다.</small>
+        </label>
+
+        <label className="member-form-field">
+          <span>유니폼 여부 <strong>*</strong></span>
+          <select
+            value={values.hasUniform ? 'true' : 'false'}
+            onChange={(event) => {
+              const hasUniform = event.target.value === 'true'
+              setValues((currentValues) => ({
+                ...currentValues,
+                hasUniform,
+                uniformNumber: hasUniform
+                  ? currentValues.uniformNumber
+                  : null,
+              }))
+            }}
+          >
+            <option value="false">없음</option>
+            <option value="true">있음</option>
+          </select>
+        </label>
+
+        <label className="member-form-field">
+          <span>등번호</span>
+          <input
+            type="number"
+            min="1"
+            max="99"
+            value={values.uniformNumber ?? ''}
+            disabled={!values.hasUniform}
+            onChange={(event) =>
+              updateValue(
+                'uniformNumber',
+                event.target.value ? Number(event.target.value) : null,
+              )
+            }
+            aria-invalid={Boolean(errors.uniformNumber)}
+          />
+          {errors.uniformNumber && <small>{errors.uniformNumber}</small>}
         </label>
 
         <label className="member-form-field member-notes-field">

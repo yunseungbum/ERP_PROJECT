@@ -1,0 +1,256 @@
+.attendance-page {
+  display: grid;
+  gap: 14px;
+  overflow: hidden;
+  width: min(1200px, calc(100% - 32px));
+  max-width: 1200px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 4px 8px 12px;
+  box-sizing: border-box;
+}
+
+.attendance-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.attendance-header h1 {
+  margin: 2px 0 4px;
+  color: #1f2937;
+  font-size: 23px;
+}
+
+.attendance-header p {
+  margin: 0;
+  color: #7b8494;
+  font-size: 13px;
+}
+
+.attendance-eyebrow {
+  color: #a4875c !important;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.attendance-table-card {
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 180px;
+  border: 1px solid #ece7df;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgb(66 52 35 / 7%);
+}
+
+.attendance-table-scroll {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-color: #bca98d #f1ece5;
+  scrollbar-width: thin;
+}
+
+.attendance-table-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+.attendance-table-scroll::-webkit-scrollbar-track {
+  background: #f1ece5;
+}
+
+.attendance-table-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid #f1ece5;
+  border-radius: 999px;
+  background: #bca98d;
+}
+
+.attendance-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  color: #3d4552;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .attendance-page {
+    width: calc(100% - 16px);
+    padding: 2px 4px 8px;
+  }
+}
+
+.attendance-table th,
+.attendance-table td {
+  height: 32px;
+  padding: 4px 6px;
+  border-right: 1px solid #eee9e1;
+  border-bottom: 1px solid #eee9e1;
+  white-space: nowrap;
+}
+
+.attendance-table th:last-child,
+.attendance-table td:last-child {
+  border-right: 0;
+}
+
+.attendance-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.attendance-table th {
+  background: #f8f5f0;
+  color: #655744;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.attendance-table tbody tr:hover {
+  background: #fcfaf7;
+}
+
+.attendance-member-name {
+  position: sticky;
+  left: 42px;
+  z-index: 2;
+  width: 72px;
+  min-width: 72px;
+  background: #fff;
+  color: #252b35;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.attendance-number-column {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  width: 42px;
+  min-width: 42px;
+}
+
+.attendance-name-column {
+  position: sticky;
+  left: 42px;
+  z-index: 4;
+  width: 72px;
+  min-width: 72px;
+}
+
+.attendance-rate-column {
+  position: sticky;
+  left: 114px;
+  z-index: 4;
+  width: 58px;
+  min-width: 58px;
+}
+
+.attendance-number-cell {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  width: 42px;
+  min-width: 42px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.attendance-rate-cell {
+  position: sticky;
+  left: 114px;
+  z-index: 2;
+  width: 58px;
+  min-width: 58px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.attendance-fixed-column {
+  background: #f2eadf !important;
+}
+
+.attendance-date-group {
+  height: 34px !important;
+  background: #a4875c !important;
+  color: #fff !important;
+  letter-spacing: 0.04em;
+}
+
+.attendance-date-column,
+.attendance-value-cell {
+  width: 48px;
+  min-width: 48px;
+}
+
+.attendance-date-column {
+  background: #efe5d7 !important;
+  color: #554735 !important;
+}
+
+.attendance-value-cell {
+  font-weight: 800;
+}
+
+.attendance-status-button {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.attendance-status-button:hover:not(:disabled) {
+  background: transparent;
+  opacity: .65;
+}
+
+.attendance-status-button:disabled {
+  cursor: wait;
+  opacity: .45;
+}
+
+.attendance-value-cell.is-present {
+  color: #22763a;
+}
+
+.attendance-value-cell.is-absent {
+  color: #c13d36;
+}
+
+.attendance-value-cell.is-excluded {
+  color: #9aa0aa;
+}
+
+.attendance-table tfoot th,
+.attendance-table tfoot td {
+  border-top: 2px solid #b9a07b;
+  border-bottom: 0;
+  background: #f3ede5;
+  color: #594a36;
+  font-weight: 900;
+}
+
+.attendance-state {
+  margin: 0;
+  padding: 60px 24px;
+  color: #7b8494;
+  text-align: center;
+}
+
+.attendance-state-error {
+  color: #c2413b;
+}

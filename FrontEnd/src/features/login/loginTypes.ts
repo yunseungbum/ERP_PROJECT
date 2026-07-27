@@ -12,4 +12,10 @@ export type LoginResponse = {
 }
 
 export type LoginStatus = 'idle' | 'loading' | 'error'
+
+export type CurrentUserResponse = {
+  userId: number
+  name: string
+  role: UserRole
+}
 import type { UserRole } from '../../shared/auth/roles'

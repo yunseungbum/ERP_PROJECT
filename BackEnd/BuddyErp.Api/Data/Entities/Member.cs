@@ -10,6 +10,8 @@ public sealed class Member
     public int BirthYear { get; set; }
     public string Notes { get; set; } = string.Empty;
     public required string MemberStatus { get; set; }
+    public bool HasUniform { get; set; }
+    public int? UniformNumber { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

@@ -1,13 +1,19 @@
 .formation-page {
-  width: min(1440px, calc(100% - 40px));
+  overflow: hidden;
+  width: min(1200px, calc(100% - 32px));
+  max-width: 1200px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 4px 8px 12px;
+  box-sizing: border-box;
 }
 
 .formation-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
 .formation-header p {
@@ -17,9 +23,9 @@
 }
 
 .formation-header h1 {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: #10213d;
-  font-size: clamp(28px, 4vw, 38px);
+  font-size: clamp(23px, 3vw, 30px);
 }
 
 .formation-header strong {
@@ -37,8 +43,11 @@
 
 .formation-layout {
   display: grid;
-  grid-template-columns: minmax(560px, 1.35fr) minmax(390px, .85fr);
-  gap: 22px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, .85fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   align-items: start;
 }
 
@@ -52,7 +61,8 @@
 }
 
 .formation-board-section {
-  padding: 20px;
+  min-width: 0;
+  padding: 12px;
 }
 
 .formation-toolbar {
@@ -60,7 +70,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .formation-select-group,
@@ -148,11 +158,13 @@
 }
 
 .formation-candidates button span {
-  width: 24px;
+  width: auto;
+  min-width: 28px;
   height: 24px;
   display: grid;
   place-items: center;
   border-radius: 50%;
+  padding: 0 5px;
   background: #e8f2ff;
 }
 
@@ -165,7 +177,7 @@
 
 .soccer-field {
   position: relative;
-  min-height: 650px;
+  min-height: 510px;
   overflow: hidden;
   border-radius: 14px;
   background: repeating-linear-gradient(
@@ -224,7 +236,7 @@
 
 .formation-player {
   position: absolute;
-  width: 92px;
+  width: 76px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -234,8 +246,8 @@
 }
 
 .formation-shirt {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   margin: 0 auto 4px;
@@ -266,7 +278,7 @@
   padding: 2px 4px;
   border-radius: 5px;
   background: rgba(255, 255, 255, .78);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -296,12 +308,14 @@
 
 .formation-side-panel {
   display: grid;
-  gap: 18px;
+  min-width: 0;
+  gap: 10px;
 }
 
 .formation-panel,
 .formation-participation-section {
-  padding: 20px;
+  min-width: 0;
+  padding: 12px;
 }
 
 .formation-panel-heading {
@@ -317,13 +331,21 @@
   font-size: 18px;
 }
 
+.formation-participation-match {
+  margin: 6px 0 0;
+  color: #738097;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .formation-panel-heading > span {
+  flex: 0 0 auto;
   color: #7b889b;
   font-size: 12px;
 }
 
 .formation-member-list {
-  max-height: 260px;
+  max-height: 190px;
   overflow-y: auto;
   border-top: 1px solid #e6edf6;
 }
@@ -397,7 +419,12 @@
 }
 
 .participation-table-wrap {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 
 .participation-table {
@@ -408,7 +435,7 @@
 
 .participation-table th,
 .participation-table td {
-  padding: 9px 5px;
+  padding: 6px 4px;
   border-bottom: 1px solid #e7edf5;
   text-align: center;
   white-space: nowrap;
@@ -425,8 +452,8 @@
 }
 
 .participation-table td > span {
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   display: inline-grid;
   place-items: center;
   border: 1px solid #dbe4ef;
@@ -565,7 +592,8 @@
 
 @media (max-width: 760px) {
   .formation-page {
-    width: min(100% - 28px, 650px);
+    width: calc(100% - 16px);
+    padding: 2px 4px 8px;
   }
 
   .formation-header {
@@ -593,7 +621,7 @@
   }
 
   .soccer-field {
-    min-height: 560px;
+    min-height: 500px;
   }
 
   .formation-side-panel {

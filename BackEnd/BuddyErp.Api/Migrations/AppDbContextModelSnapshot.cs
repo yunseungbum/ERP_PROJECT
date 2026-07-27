@@ -19,6 +19,217 @@ namespace BuddyErp.Api.Migrations
                 .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("BuddyErp.Api.Data.Entities.Announcement", b =>
+                {
+                    b.Property<long>("AnnouncementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("announcement_id");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("author_name");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("AnnouncementId");
+
+                    b.ToTable("announcements", (string)null);
+                });
+
+            modelBuilder.Entity("BuddyErp.Api.Data.Entities.Expense", b =>
+                {
+                    b.Property<long>("ExpenseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("expense_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12)
+                        .HasColumnType("decimal(12,0)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ExpenseItem")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("expense_item");
+
+                    b.Property<bool>("IsSettled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_settled");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("PayerName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("payer_name");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("payment_date");
+
+                    b.Property<long?>("ScheduleId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("schedule_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("ExpenseId");
+
+                    b.HasIndex("ScheduleId")
+                        .IsUnique();
+
+                    b.ToTable("expenses", (string)null);
+                });
+
+            modelBuilder.Entity("BuddyErp.Api.Data.Entities.InventoryItem", b =>
+                {
+                    b.Property<long>("InventoryItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("inventory_item_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("item_name");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int")
+                        .HasColumnName("quantity");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("InventoryItemId");
+
+                    b.HasIndex("ItemName")
+                        .IsUnique();
+
+                    b.ToTable("inventory_items", (string)null);
+                });
+
+            modelBuilder.Entity("BuddyErp.Api.Data.Entities.InventoryPurchase", b =>
+                {
+                    b.Property<long>("PurchaseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("purchase_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12)
+                        .HasColumnType("decimal(12,0)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsPurchased")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_purchased");
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("item_name");
+
+                    b.Property<DateTime?>("PurchasedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("purchased_at");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int")
+                        .HasColumnName("quantity");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("PurchaseId");
+
+                    b.ToTable("inventory_purchases", (string)null);
+                });
+
+            modelBuilder.Entity("BuddyErp.Api.Data.Entities.MatchAttendance", b =>
+                {
+                    b.Property<long>("AttendanceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("attendance_id");
+
+                    b.Property<long>("MemberId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("member_id");
+
+                    b.Property<long>("ScheduleId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("schedule_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("varchar(1)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("AttendanceId");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("ScheduleId", "MemberId")
+                        .IsUnique();
+
+                    b.ToTable("match_attendances", (string)null);
+                });
+
             modelBuilder.Entity("BuddyErp.Api.Data.Entities.MatchParticipant", b =>
                 {
                     b.Property<long>("ParticipantId")
@@ -71,11 +282,45 @@ namespace BuddyErp.Api.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
+                    b.Property<bool>("IsCompleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_completed");
+
+                    b.Property<bool>("IsMatchFeePaid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_match_fee_paid");
+
+                    b.Property<decimal>("MatchFee")
+                        .HasPrecision(12)
+                        .HasColumnType("decimal(12,0)")
+                        .HasColumnName("match_fee");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("OpponentContact")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("opponent_contact");
+
                     b.Property<string>("OpponentName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("opponent_name");
+
+                    b.Property<string>("PayerName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("payer_name");
 
                     b.Property<DateTime>("StartsAt")
                         .HasColumnType("datetime(6)")
@@ -100,7 +345,12 @@ namespace BuddyErp.Api.Migrations
                         {
                             ScheduleId = 1L,
                             CreatedAt = new DateTime(2026, 7, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = false,
+                            IsMatchFeePaid = false,
+                            MatchFee = 0m,
+                            Notes = "",
                             OpponentName = "신풍 FC",
+                            PayerName = "윤승범",
                             StartsAt = new DateTime(2026, 8, 20, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedAt = new DateTime(2026, 7, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             VenueName = "신트리 공원"
@@ -121,6 +371,12 @@ namespace BuddyErp.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
+
+                    b.Property<bool>("HasUniform")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("has_uniform");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -164,6 +420,10 @@ namespace BuddyErp.Api.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)")
                         .HasColumnName("secondary_position");
+
+                    b.Property<int?>("UniformNumber")
+                        .HasColumnType("int")
+                        .HasColumnName("uniform_number");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -305,6 +565,35 @@ namespace BuddyErp.Api.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("BuddyErp.Api.Data.Entities.Expense", b =>
+                {
+                    b.HasOne("BuddyErp.Api.Data.Entities.MatchSchedule", "Schedule")
+                        .WithOne("Expense")
+                        .HasForeignKey("BuddyErp.Api.Data.Entities.Expense", "ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Schedule");
+                });
+
+            modelBuilder.Entity("BuddyErp.Api.Data.Entities.MatchAttendance", b =>
+                {
+                    b.HasOne("BuddyErp.Api.Data.Entities.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BuddyErp.Api.Data.Entities.MatchSchedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Schedule");
+                });
+
             modelBuilder.Entity("BuddyErp.Api.Data.Entities.MatchParticipant", b =>
                 {
                     b.HasOne("BuddyErp.Api.Data.Entities.Member", "Member")
@@ -370,6 +659,8 @@ namespace BuddyErp.Api.Migrations
 
             modelBuilder.Entity("BuddyErp.Api.Data.Entities.MatchSchedule", b =>
                 {
+                    b.Navigation("Expense");
+
                     b.Navigation("Participants");
 
                     b.Navigation("QuarterFormations");

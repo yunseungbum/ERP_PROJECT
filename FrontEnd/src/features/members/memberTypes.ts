@@ -18,6 +18,8 @@ export type MemberSaveRequest = {
   birthYear: number
   notes: string
   memberStatus: MemberStatus
+  hasUniform: boolean
+  uniformNumber: number | null
 }
 
 export type MemberResponse = MemberSaveRequest & {

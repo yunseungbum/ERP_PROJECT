@@ -14,6 +14,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<QuarterFormation> QuarterFormations => Set<QuarterFormation>();
     public DbSet<QuarterLineupPlayer> QuarterLineupPlayers =>
         Set<QuarterLineupPlayer>();
+    public DbSet<MatchAttendance> MatchAttendances => Set<MatchAttendance>();
+    public DbSet<InventoryPurchase> InventoryPurchases =>
+        Set<InventoryPurchase>();
+    public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
+    public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<Announcement> Announcements => Set<Announcement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,6 +65,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             .HasMaxLength(20)
             .HasDefaultValue(MemberStatusCodes.Active)
             .IsRequired();
+
+        member.Property(x => x.HasUniform)
+            .HasColumnName("has_uniform")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        member.Property(x => x.UniformNumber)
+            .HasColumnName("uniform_number");
 
         member.Property(x => x.IsActive)
             .HasColumnName("is_active")
@@ -149,6 +163,35 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             .HasColumnName("starts_at")
             .IsRequired();
 
+        matchSchedule.Property(x => x.MatchFee)
+            .HasColumnName("match_fee")
+            .HasPrecision(12, 0)
+            .IsRequired();
+
+        matchSchedule.Property(x => x.IsMatchFeePaid)
+            .HasColumnName("is_match_fee_paid")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        matchSchedule.Property(x => x.PayerName)
+            .HasColumnName("payer_name")
+            .HasMaxLength(50)
+            .IsRequired();
+
+        matchSchedule.Property(x => x.Notes)
+            .HasColumnName("notes")
+            .HasMaxLength(1000)
+            .IsRequired();
+
+        matchSchedule.Property(x => x.IsCompleted)
+            .HasColumnName("is_completed")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        matchSchedule.Property(x => x.OpponentContact)
+            .HasColumnName("opponent_contact")
+            .HasMaxLength(30);
+
         matchSchedule.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();
@@ -163,6 +206,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             VenueName = "신트리 공원",
             OpponentName = "신풍 FC",
             StartsAt = new DateTime(2026, 8, 20, 20, 0, 0),
+            MatchFee = 0,
+            IsMatchFeePaid = false,
+            PayerName = "윤승범",
+            Notes = string.Empty,
+            IsCompleted = false,
+            OpponentContact = null,
             CreatedAt = new DateTime(2026, 7, 24, 0, 0, 0),
             UpdatedAt = new DateTime(2026, 7, 24, 0, 0, 0),
         });
@@ -292,5 +341,172 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             .WithMany(x => x.LineupPlayers)
             .HasForeignKey(x => x.ParticipantId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        var matchAttendance = modelBuilder.Entity<MatchAttendance>();
+
+        matchAttendance.ToTable("match_attendances");
+        matchAttendance.HasKey(x => x.AttendanceId);
+
+        matchAttendance.Property(x => x.AttendanceId)
+            .HasColumnName("attendance_id")
+            .ValueGeneratedOnAdd();
+
+        matchAttendance.Property(x => x.ScheduleId)
+            .HasColumnName("schedule_id");
+
+        matchAttendance.Property(x => x.MemberId)
+            .HasColumnName("member_id");
+
+        matchAttendance.Property(x => x.Status)
+            .HasColumnName("status")
+            .HasMaxLength(1)
+            .IsRequired();
+
+        matchAttendance.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+
+        matchAttendance.HasIndex(x => new
+            {
+                x.ScheduleId,
+                x.MemberId,
+            })
+            .IsUnique();
+
+        matchAttendance.HasOne(x => x.Schedule)
+            .WithMany()
+            .HasForeignKey(x => x.ScheduleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        matchAttendance.HasOne(x => x.Member)
+            .WithMany()
+            .HasForeignKey(x => x.MemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        var inventoryPurchase = modelBuilder.Entity<InventoryPurchase>();
+
+        inventoryPurchase.ToTable("inventory_purchases");
+        inventoryPurchase.HasKey(x => x.PurchaseId);
+        inventoryPurchase.Property(x => x.PurchaseId)
+            .HasColumnName("purchase_id")
+            .ValueGeneratedOnAdd();
+        inventoryPurchase.Property(x => x.ItemName)
+            .HasColumnName("item_name")
+            .HasMaxLength(100)
+            .IsRequired();
+        inventoryPurchase.Property(x => x.Quantity)
+            .HasColumnName("quantity")
+            .IsRequired();
+        inventoryPurchase.Property(x => x.Amount)
+            .HasColumnName("amount")
+            .HasPrecision(12, 0)
+            .IsRequired();
+        inventoryPurchase.Property(x => x.IsPurchased)
+            .HasColumnName("is_purchased")
+            .HasDefaultValue(false)
+            .IsRequired();
+        inventoryPurchase.Property(x => x.PurchasedAt)
+            .HasColumnName("purchased_at");
+        inventoryPurchase.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        inventoryPurchase.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+
+        var inventoryItem = modelBuilder.Entity<InventoryItem>();
+
+        inventoryItem.ToTable("inventory_items");
+        inventoryItem.HasKey(x => x.InventoryItemId);
+        inventoryItem.Property(x => x.InventoryItemId)
+            .HasColumnName("inventory_item_id")
+            .ValueGeneratedOnAdd();
+        inventoryItem.Property(x => x.ItemName)
+            .HasColumnName("item_name")
+            .HasMaxLength(100)
+            .IsRequired();
+        inventoryItem.HasIndex(x => x.ItemName)
+            .IsUnique();
+        inventoryItem.Property(x => x.Quantity)
+            .HasColumnName("quantity")
+            .IsRequired();
+        inventoryItem.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        inventoryItem.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+
+        var expense = modelBuilder.Entity<Expense>();
+
+        expense.ToTable("expenses");
+        expense.HasKey(x => x.ExpenseId);
+        expense.Property(x => x.ExpenseId)
+            .HasColumnName("expense_id")
+            .ValueGeneratedOnAdd();
+        expense.Property(x => x.ScheduleId)
+            .HasColumnName("schedule_id");
+        expense.HasIndex(x => x.ScheduleId)
+            .IsUnique();
+        expense.Property(x => x.ExpenseItem)
+            .HasColumnName("expense_item")
+            .HasMaxLength(100)
+            .IsRequired();
+        expense.Property(x => x.Amount)
+            .HasColumnName("amount")
+            .HasPrecision(12, 0)
+            .IsRequired();
+        expense.Property(x => x.PaymentDate)
+            .HasColumnName("payment_date")
+            .IsRequired();
+        expense.Property(x => x.Notes)
+            .HasColumnName("notes")
+            .HasMaxLength(1000)
+            .IsRequired();
+        expense.Property(x => x.PayerName)
+            .HasColumnName("payer_name")
+            .HasMaxLength(50)
+            .IsRequired();
+        expense.Property(x => x.IsSettled)
+            .HasColumnName("is_settled")
+            .HasDefaultValue(false)
+            .IsRequired();
+        expense.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        expense.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+
+        expense.HasOne(x => x.Schedule)
+            .WithOne(x => x.Expense)
+            .HasForeignKey<Expense>(x => x.ScheduleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        var announcement = modelBuilder.Entity<Announcement>();
+
+        announcement.ToTable("announcements");
+        announcement.HasKey(x => x.AnnouncementId);
+        announcement.Property(x => x.AnnouncementId)
+            .HasColumnName("announcement_id")
+            .ValueGeneratedOnAdd();
+        announcement.Property(x => x.Title)
+            .HasColumnName("title")
+            .HasMaxLength(100)
+            .IsRequired();
+        announcement.Property(x => x.Content)
+            .HasColumnName("content")
+            .HasMaxLength(1000)
+            .IsRequired();
+        announcement.Property(x => x.AuthorName)
+            .HasColumnName("author_name")
+            .HasMaxLength(50)
+            .IsRequired();
+        announcement.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        announcement.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
     }
 }

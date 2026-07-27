@@ -23,6 +23,8 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
                 member.BirthYear,
                 member.Notes,
                 member.MemberStatus,
+                member.HasUniform,
+                member.UniformNumber,
                 member.IsActive,
                 member.CreatedAt,
                 member.UpdatedAt))
@@ -46,6 +48,8 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
                 member.BirthYear,
                 member.Notes,
                 member.MemberStatus,
+                member.HasUniform,
+                member.UniformNumber,
                 member.IsActive,
                 member.CreatedAt,
                 member.UpdatedAt))
@@ -68,6 +72,10 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
             BirthYear = request.BirthYear,
             Notes = (request.Notes ?? string.Empty).Trim(),
             MemberStatus = request.MemberStatus,
+            HasUniform = request.HasUniform,
+            UniformNumber = request.HasUniform
+                ? request.UniformNumber
+                : null,
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now,
@@ -102,6 +110,10 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
         member.BirthYear = request.BirthYear;
         member.Notes = (request.Notes ?? string.Empty).Trim();
         member.MemberStatus = request.MemberStatus;
+        member.HasUniform = request.HasUniform;
+        member.UniformNumber = request.HasUniform
+            ? request.UniformNumber
+            : null;
         member.UpdatedAt = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -146,6 +158,8 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
 
     private static void ValidateRequest(MemberSaveRequest request)
     {
+        ValidateUniform(request);
+
         if (string.IsNullOrWhiteSpace(request.MemberName))
         {
             throw new ArgumentException("회원 이름은 필수입니다.");
@@ -189,6 +203,16 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
         }
     }
 
+    private static void ValidateUniform(MemberSaveRequest request)
+    {
+        if (request.HasUniform &&
+            request.UniformNumber is not (>= 1 and <= 99))
+        {
+            throw new ArgumentException(
+                "유니폼이 있으면 1부터 99까지의 등번호가 필요합니다.");
+        }
+    }
+
     private static MemberResponse ToResponse(Member member)
     {
         return new MemberResponse(
@@ -200,6 +224,8 @@ public sealed class MemberService(AppDbContext dbContext) : IMemberService
             member.BirthYear,
             member.Notes,
             member.MemberStatus,
+            member.HasUniform,
+            member.UniformNumber,
             member.IsActive,
             member.CreatedAt,
             member.UpdatedAt);
