@@ -54,10 +54,14 @@ export function AttendancePage({ userRoles }: AttendancePageProps) {
   async function handleAttendanceChange(
     memberId: number,
     scheduleId: number,
-    currentStatus: 'O' | 'X',
+    currentStatus: 'O' | 'X' | '-',
   ) {
-    const nextStatus: 'O' | 'X' =
-      currentStatus === 'O' ? 'X' : 'O'
+    const nextStatus: 'O' | 'X' | '-' =
+      currentStatus === 'O'
+        ? 'X'
+        : currentStatus === 'X'
+          ? '-'
+          : 'O'
     const cellKey = `${scheduleId}-${memberId}`
     setSavingCellKey(cellKey)
 
@@ -76,7 +80,8 @@ export function AttendancePage({ userRoles }: AttendancePageProps) {
           const applicableAttendances = attendances.filter(
             (attendance) => attendance.status !== '-',
           )
-          const attendanceRate = applicableAttendances.length === 0
+          const attendanceRate = member.isPaused ||
+            applicableAttendances.length === 0
             ? null
             : Math.round(
                 applicableAttendances.filter(
@@ -161,7 +166,7 @@ export function AttendancePage({ userRoles }: AttendancePageProps) {
 
                         return (
                           <td className={`attendance-value-cell ${statusClass}`} key={schedule.scheduleId}>
-                            {canWriteAttendance && status !== '-' ? (
+                            {canWriteAttendance ? (
                               <button
                                 type="button"
                                 className="attendance-status-button"

@@ -11,6 +11,7 @@ export type AttendanceScheduleResponse = {
 export type AttendanceMemberResponse = {
   memberId: number
   memberName: string
+  isPaused: boolean
   attendanceRate: number | null
   attendances: AttendanceCellResponse[]
 }

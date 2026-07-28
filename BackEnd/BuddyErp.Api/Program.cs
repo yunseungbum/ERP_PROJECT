@@ -11,6 +11,7 @@ using BuddyErp.Api.Services.Inventory;
 using BuddyErp.Api.Services.Schedules;
 using BuddyErp.Api.Services.Expenses;
 using BuddyErp.Api.Services.Announcements;
+using BuddyErp.Api.Services.Dues;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -83,6 +84,7 @@ builder.Services.AddScoped<IFormationService, FormationService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddScoped<IMemberDueService, MemberDueService>();
 
 builder.Services.Configure<InitialAccountPasswordsOptions>(
     builder.Configuration.GetSection(InitialAccountPasswordsOptions.SectionName));

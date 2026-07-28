@@ -3,6 +3,7 @@ using System;
 using BuddyErp.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuddyErp.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728054331_AddMemberDuesManagement")]
+    partial class AddMemberDuesManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -484,43 +487,6 @@ namespace BuddyErp.Api.Migrations
                     b.ToTable("member_dues", (string)null);
                 });
 
-            modelBuilder.Entity("BuddyErp.Api.Data.Entities.MemberDueNote", b =>
-                {
-                    b.Property<long>("MemberDueNoteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("member_due_note_id");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("DueYear")
-                        .HasColumnType("int")
-                        .HasColumnName("due_year");
-
-                    b.Property<long>("MemberId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("member_id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("MemberDueNoteId");
-
-                    b.HasIndex("MemberId", "DueYear")
-                        .IsUnique();
-
-                    b.ToTable("member_due_notes", (string)null);
-                });
-
             modelBuilder.Entity("BuddyErp.Api.Data.Entities.QuarterFormation", b =>
                 {
                     b.Property<long>("QuarterFormationId")
@@ -700,17 +666,6 @@ namespace BuddyErp.Api.Migrations
                 });
 
             modelBuilder.Entity("BuddyErp.Api.Data.Entities.MemberDue", b =>
-                {
-                    b.HasOne("BuddyErp.Api.Data.Entities.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-                });
-
-            modelBuilder.Entity("BuddyErp.Api.Data.Entities.MemberDueNote", b =>
                 {
                     b.HasOne("BuddyErp.Api.Data.Entities.Member", "Member")
                         .WithMany()

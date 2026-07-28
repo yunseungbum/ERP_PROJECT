@@ -65,7 +65,10 @@ export function AppRoutes({
           path="/schedules"
           element={<SchedulePage userRoles={currentUser?.roles ?? []} />}
         />
-        <Route path="/dues" element={<DuesPage />} />
+        <Route
+          path="/dues"
+          element={<DuesPage userRoles={currentUser?.roles ?? []} />}
+        />
         <Route
           path="/expenses"
           element={<ExpensesPage userRoles={currentUser?.roles ?? []} />}

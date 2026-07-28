@@ -11,6 +11,7 @@ public sealed record AttendanceScheduleResponse(
 public sealed record AttendanceMemberResponse(
     long MemberId,
     string MemberName,
+    bool IsPaused,
     decimal? AttendanceRate,
     IReadOnlyList<AttendanceCellResponse> Attendances);
 

@@ -11,9 +11,9 @@ export function getAttendanceMatrix(): Promise<AttendanceMatrixResponse> {
 export function updateAttendance(
   scheduleId: number,
   memberId: number,
-  status: 'O' | 'X',
+  status: 'O' | 'X' | '-',
 ): Promise<AttendanceCellResponse> {
-  return apiPut<AttendanceCellResponse, { status: 'O' | 'X' }>(
+  return apiPut<AttendanceCellResponse, { status: 'O' | 'X' | '-' }>(
     `/api/attendance/schedules/${scheduleId}/members/${memberId}`,
     { status },
   )

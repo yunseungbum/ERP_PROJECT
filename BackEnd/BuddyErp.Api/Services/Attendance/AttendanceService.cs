@@ -66,7 +66,12 @@ public sealed class AttendanceService(AppDbContext dbContext)
                 .Select(schedule => new AttendanceCellResponse(
                     schedule.ScheduleId,
                     isPaused
-                        ? "-"
+                        ? manualAttendances.TryGetValue((
+                            schedule.ScheduleId,
+                            member.MemberId),
+                            out var pausedManualStatus)
+                            ? pausedManualStatus
+                            : "-"
                         : manualAttendances.TryGetValue((
                             schedule.ScheduleId,
                             member.MemberId),
@@ -76,12 +81,14 @@ public sealed class AttendanceService(AppDbContext dbContext)
                             schedule.ScheduleId,
                             member.MemberId))
                             ? "O"
-                            : "X"))
+                            : "-"))
                 .ToList();
 
-            var applicableAttendances = attendances
-                .Where(attendance => attendance.Status != "-")
-                .ToList();
+            var applicableAttendances = isPaused
+                ? []
+                : attendances
+                    .Where(attendance => attendance.Status != "-")
+                    .ToList();
             var attendanceRate = applicableAttendances.Count == 0
                 ? (decimal?)null
                 : Math.Round(
@@ -94,6 +101,7 @@ public sealed class AttendanceService(AppDbContext dbContext)
             return new AttendanceMemberResponse(
                 member.MemberId,
                 member.MemberName,
+                isPaused,
                 attendanceRate,
                 attendances);
         }).ToList();
@@ -111,7 +119,7 @@ public sealed class AttendanceService(AppDbContext dbContext)
     {
         var status = request.Status.Trim().ToUpperInvariant();
 
-        if (status is not ("O" or "X"))
+        if (status is not ("O" or "X" or "-"))
         {
             throw new ArgumentException("참석 상태는 O 또는 X만 가능합니다.");
         }
@@ -130,12 +138,6 @@ public sealed class AttendanceService(AppDbContext dbContext)
         if (!scheduleExists || member is null)
         {
             return null;
-        }
-
-        if (member.MemberStatus == MemberStatusCodes.Paused)
-        {
-            throw new ArgumentException(
-                "중단 상태 회원의 참석 여부는 수정할 수 없습니다.");
         }
 
         var attendance = await dbContext.MatchAttendances

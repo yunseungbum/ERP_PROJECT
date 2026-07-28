@@ -1,0 +1,65 @@
+.dues-page { display: grid; gap: 20px; }
+.dues-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
+.dues-header p, .dues-header span { margin: 0; color: #81786c; }
+.dues-header h1 { margin: 5px 0 8px; color: #28231d; }
+.dues-year-selector { display: grid; gap: 6px; color: #665a4c; font-size: 13px; font-weight: 800; }
+.dues-year-selector select { min-width: 120px; border: 1px solid #d8cdbf; border-radius: 9px; padding: 9px 11px; background: white; color: #3e352a; font: inherit; }
+.dues-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.dues-summary article { display: grid; gap: 8px; padding: 17px 20px; border: 1px solid #e7dfd4; border-radius: 14px; background: white; box-shadow: 0 8px 24px rgb(66 52 35 / 6%); }
+.dues-summary span { color: #75695b; font-size: 13px; font-weight: 800; }
+.dues-summary strong { font-size: 21px; }
+.dues-summary .is-paid { color: #277a45; }
+.dues-summary .is-unpaid { color: #c4473b; }
+.dues-panel { overflow: hidden; border: 1px solid #e7dfd4; border-radius: 16px; background: white; box-shadow: 0 10px 28px rgb(66 52 35 / 7%); }
+.dues-table-wrap { overflow: auto; }
+.dues-table { width: 100%; min-width: 1210px; border-collapse: separate; border-spacing: 0; color: #464038; font-size: 12px; text-align: center; }
+.dues-table th, .dues-table td { box-sizing: border-box; padding: 9px 7px; border-right: 1px solid #e8e0d6; border-bottom: 1px solid #e8e0d6; white-space: nowrap; }
+.dues-table th { position: sticky; z-index: 2; top: 0; background: #f3ede5; color: #5c4c37; font-size: 12px; }
+.dues-table th:last-child, .dues-table td:last-child { border-right: 0; }
+.dues-table tbody tr:hover { background: #fcfaf7; }
+.dues-table tbody tr.is-paused { background: #fff6cf; }
+.dues-table tbody tr.is-paused:hover { background: #fff0b0; }
+.dues-fixed { position: sticky; z-index: 3; background: #fff; background-clip: padding-box; }
+.dues-table thead .dues-fixed { z-index: 5; background: #f3ede5; }
+.dues-fixed-no { left: 0; width: 48px; min-width: 48px; max-width: 48px; }
+.dues-fixed-name { left: 48px; width: 96px; min-width: 96px; max-width: 96px; }
+.dues-fixed-uniform { left: 144px; width: 60px; min-width: 60px; max-width: 60px; }
+.dues-fixed-paid { left: 204px; width: 100px; min-width: 100px; max-width: 100px; }
+.dues-fixed-unpaid { left: 304px; width: 100px; min-width: 100px; max-width: 100px; }
+.dues-fixed-note { left: 404px; width: 160px; min-width: 160px; max-width: 160px; box-shadow: 5px 0 9px rgb(74 58 40 / 8%); }
+.dues-table tbody tr.is-paused .dues-fixed { background: #fff6cf; }
+.dues-table tbody tr.is-paused:hover .dues-fixed { background: #fff0b0; }
+.dues-member-name { color: #2d261f; font-weight: 900; }
+.dues-status { width: 48px; font-weight: 900; }
+.dues-status button { width: 100%; border: 0; padding: 5px; background: transparent; color: inherit; font: inherit; font-weight: 900; cursor: pointer; }
+.dues-status button:disabled { cursor: wait; opacity: .5; }
+.dues-status.is-paid { color: #24783c; }
+.dues-status.is-unpaid, .dues-unpaid-total { color: #c83e3e; }
+.dues-status.is-exempt { color: #8a8176; }
+.dues-status.is-pending { color: #aaa095; }
+.dues-paid-total { color: #24783c; font-weight: 800; }
+.dues-unpaid-total { font-weight: 900; }
+.dues-note-button { display: block; overflow: hidden; width: 100%; padding: 3px 0; border: 0; background: transparent; color: #6e6255; font: inherit; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.dues-note-button:hover { color: #1266d6; text-decoration: underline; }
+.dues-total-row th, .dues-total-row td { position: sticky; z-index: 2; bottom: 0; background: #eee5d9; color: #4d4032; font-weight: 900; }
+.dues-total-row .dues-fixed { z-index: 4; background: #eee5d9; }
+.dues-message { margin: 0; padding: 62px 20px; color: #81786c; text-align: center; }
+.dues-message.is-error { color: #ba3c34; }
+.dues-message button { border: 0; border-radius: 7px; padding: 8px 12px; cursor: pointer; }
+.dues-note-backdrop { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(20 17 13 / 55%); }
+.dues-note-modal { width: min(600px, 100%); border-radius: 18px; background: white; box-shadow: 0 24px 70px rgb(0 0 0 / 28%); }
+.dues-note-modal > header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #eee7de; }
+.dues-note-modal h2 { margin: 0; color: #332a20; font-size: 20px; }
+.dues-note-modal > header button { border: 0; background: transparent; color: #766b5e; font-size: 28px; cursor: pointer; }
+.dues-note-body { padding: 22px 24px 24px; }
+.dues-note-body textarea { width: 100%; box-sizing: border-box; border: 1px solid #dcd2c5; border-radius: 9px; padding: 12px; color: #332e28; font: inherit; resize: vertical; }
+.dues-note-body textarea:focus { border-color: #a4875c; outline: 3px solid rgb(164 135 92 / 14%); }
+.dues-note-body > p { min-height: 90px; margin: 0; color: #51483e; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dues-note-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 18px; }
+.dues-note-actions button { border: 1px solid #d9cfc2; border-radius: 9px; padding: 10px 18px; background: white; cursor: pointer; }
+.dues-note-actions .is-primary { border-color: #a4875c; background: #a4875c; color: white; font-weight: 800; }
+.dues-note-actions button:disabled { cursor: wait; opacity: .65; }
+@media (max-width: 800px) {
+  .dues-header { align-items: stretch; flex-direction: column; }
+  .dues-summary { grid-template-columns: 1fr; }
+}

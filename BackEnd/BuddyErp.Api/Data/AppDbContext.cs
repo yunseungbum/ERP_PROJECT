@@ -20,6 +20,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<Announcement> Announcements => Set<Announcement>();
+    public DbSet<MemberDue> MemberDues => Set<MemberDue>();
+    public DbSet<MemberDueNote> MemberDueNotes => Set<MemberDueNote>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -508,5 +510,78 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         announcement.Property(x => x.UpdatedAt)
             .HasColumnName("updated_at")
             .IsRequired();
+
+        var memberDue = modelBuilder.Entity<MemberDue>();
+
+        memberDue.ToTable("member_dues");
+        memberDue.HasKey(x => x.MemberDueId);
+        memberDue.Property(x => x.MemberDueId)
+            .HasColumnName("member_due_id")
+            .ValueGeneratedOnAdd();
+        memberDue.Property(x => x.MemberId)
+            .HasColumnName("member_id");
+        memberDue.Property(x => x.DueYear)
+            .HasColumnName("due_year");
+        memberDue.Property(x => x.DueMonth)
+            .HasColumnName("due_month");
+        memberDue.Property(x => x.Amount)
+            .HasColumnName("amount")
+            .HasPrecision(12, 0)
+            .IsRequired();
+        memberDue.Property(x => x.PaymentStatus)
+            .HasColumnName("payment_status")
+            .HasMaxLength(20)
+            .IsRequired();
+        memberDue.Property(x => x.PaidAt)
+            .HasColumnName("paid_at");
+        memberDue.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        memberDue.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+        memberDue.HasIndex(x => new
+            {
+                x.MemberId,
+                x.DueYear,
+                x.DueMonth,
+            })
+            .IsUnique();
+        memberDue.HasOne(x => x.Member)
+            .WithMany()
+            .HasForeignKey(x => x.MemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        var memberDueNote = modelBuilder.Entity<MemberDueNote>();
+
+        memberDueNote.ToTable("member_due_notes");
+        memberDueNote.HasKey(x => x.MemberDueNoteId);
+        memberDueNote.Property(x => x.MemberDueNoteId)
+            .HasColumnName("member_due_note_id")
+            .ValueGeneratedOnAdd();
+        memberDueNote.Property(x => x.MemberId)
+            .HasColumnName("member_id");
+        memberDueNote.Property(x => x.DueYear)
+            .HasColumnName("due_year");
+        memberDueNote.Property(x => x.Content)
+            .HasColumnName("content")
+            .HasMaxLength(1000)
+            .IsRequired();
+        memberDueNote.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        memberDueNote.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+        memberDueNote.HasIndex(x => new
+            {
+                x.MemberId,
+                x.DueYear,
+            })
+            .IsUnique();
+        memberDueNote.HasOne(x => x.Member)
+            .WithMany()
+            .HasForeignKey(x => x.MemberId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

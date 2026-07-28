@@ -83,6 +83,14 @@ public sealed class FormationService(AppDbContext dbContext)
             });
         }
 
+        var excludedAttendances = await dbContext.MatchAttendances
+            .Where(attendance =>
+                attendance.ScheduleId == scheduleId &&
+                memberIds.Contains(attendance.MemberId) &&
+                attendance.Status == "-")
+            .ToListAsync(cancellationToken);
+
+        dbContext.MatchAttendances.RemoveRange(excludedAttendances);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return await GetBoardAsync(scheduleId, cancellationToken);
