@@ -1,0 +1,28 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+
+WORKDIR /source
+
+# 프로젝트 파일을 먼저 복사하면 NuGet 패키지 복원 결과를 캐시할 수 있습니다.
+COPY BackEnd/BuddyErp.Api/BuddyErp.Api.csproj BackEnd/BuddyErp.Api/
+RUN dotnet restore BackEnd/BuddyErp.Api/BuddyErp.Api.csproj
+
+COPY BackEnd/BuddyErp.Api/ BackEnd/BuddyErp.Api/
+RUN dotnet publish BackEnd/BuddyErp.Api/BuddyErp.Api.csproj \
+    --configuration Release \
+    --output /app/publish \
+    --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+
+WORKDIR /app
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+
+USER $APP_UID
+
+ENTRYPOINT ["dotnet", "BuddyErp.Api.dll"]
