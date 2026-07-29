@@ -14,6 +14,7 @@ using BuddyErp.Api.Services.Announcements;
 using BuddyErp.Api.Services.Dues;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -92,20 +93,46 @@ builder.Services.Configure<InitialAccountPasswordsOptions>(
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<InitialAccountSeeder>();
 
-// React 개발 서버에서 오는 요청만 허용합니다.
-// CORS는 브라우저가 서로 다른 출처의 API를 호출할 때 필요한 보안 규칙입니다.
+var allowedFrontendOrigins = new[] { "http://localhost:5173" }
+    .Concat(
+        builder.Configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>() ?? [])
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
+// 로컬 React 개발 서버와 환경변수로 등록한 배포 프론트 주소만 허용합니다.
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("FrontendDevelopment", policy =>
+    options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(allowedFrontendOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    // Cloudtype 프록시 주소는 배포마다 달라질 수 있습니다.
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+// 새 배포 DB가 비어 있어도 서버 시작 시 EF Core가 필요한 테이블을 만듭니다.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 if (args.Contains("--seed-initial-accounts", StringComparer.Ordinal))
 {
@@ -126,6 +153,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseForwardedHeaders();
+
 // 로컬 개발은 React와 API를 HTTP로 간단히 연결합니다.
 // 배포 환경에서는 HTTP 요청을 반드시 HTTPS로 전환합니다.
 if (!app.Environment.IsDevelopment())
@@ -133,7 +162,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseCors("FrontendDevelopment");
+app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
