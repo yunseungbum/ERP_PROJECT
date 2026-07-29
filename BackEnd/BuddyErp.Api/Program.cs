@@ -156,9 +156,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseCors("Frontend");
 
+// React 빌드 결과(wwwroot)의 정적 파일을 백엔드가 함께 제공합니다.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// React 화면의 주소로 직접 접속하거나 새로고침해도 index.html을 반환합니다.
+app.MapFallbackToFile("index.html");
 
 app.Run();
