@@ -16,20 +16,20 @@
   margin-bottom: 12px;
 }
 
-.formation-header p {
-  margin: 0 0 7px;
-  color: #78869a;
-  font-size: 14px;
-}
-
 .formation-header h1 {
-  margin: 0 0 4px;
+  margin: 0;
   color: #10213d;
   font-size: clamp(23px, 3vw, 30px);
 }
 
-.formation-header strong {
+.formation-toolbar-match {
+  margin: 0;
+  overflow: hidden;
   color: #52637a;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .formation-header > span {
@@ -177,7 +177,7 @@
 
 .soccer-field {
   position: relative;
-  min-height: 510px;
+  min-height: 650px;
   overflow: hidden;
   border-radius: 14px;
   background: repeating-linear-gradient(
@@ -236,7 +236,7 @@
 
 .formation-player {
   position: absolute;
-  width: 76px;
+  width: 88px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -246,8 +246,8 @@
 }
 
 .formation-shirt {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
   margin: 0 auto 4px;
@@ -255,7 +255,7 @@
   border-radius: 10px 10px 5px 5px;
   background: #f5f9ff;
   color: #155fc6;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
   box-shadow: 0 3px 8px rgba(22, 61, 111, .18);
 }
@@ -278,7 +278,7 @@
   padding: 2px 4px;
   border-radius: 5px;
   background: rgba(255, 255, 255, .78);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -333,8 +333,9 @@
 
 .formation-participation-match {
   margin: 6px 0 0;
-  color: #738097;
+  color: #263a55;
   font-size: 13px;
+  font-weight: 700;
   line-height: 1.45;
 }
 
@@ -342,6 +343,37 @@
   flex: 0 0 auto;
   color: #7b889b;
   font-size: 12px;
+}
+
+.formation-panel-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7b889b;
+  font-size: 12px;
+}
+
+.formation-panel-toggle {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #d8e3f1;
+  border-radius: 8px;
+  background: #f7faff;
+  color: #52647c;
+  font-size: 11px;
+  cursor: pointer;
+  transition: transform .2s ease, background-color .2s ease;
+}
+
+.formation-panel-toggle.is-open {
+  transform: rotate(180deg);
+}
+
+.formation-panel-toggle:hover {
+  background: #eaf3ff;
 }
 
 .formation-member-list {
@@ -446,9 +478,36 @@
   text-align: left;
 }
 
+.participation-table .participation-group-row th {
+  padding: 8px 7px;
+  border-top: 1px solid #d8e3f1;
+  background: #edf5ff;
+  color: #1f5f9f;
+  font-size: 12px;
+  text-align: left;
+}
+
+.participation-table .participation-group-row.is-guest th {
+  background: #f7f3ea;
+  color: #765b2e;
+}
+
+.participation-group-row th span {
+  margin-left: 7px;
+  color: inherit;
+  font-weight: 700;
+  opacity: .72;
+}
+
+.participation-table tbody tr:not(.participation-group-row) td:first-child {
+  color: #10213d;
+  font-weight: 800;
+}
+
 .participation-table td:first-child small {
   display: block;
   color: #8693a5;
+  font-weight: 400;
 }
 
 .participation-table td > span {
@@ -601,6 +660,11 @@
     flex-direction: column;
   }
 
+  .formation-toolbar-match {
+    grid-column: 1 / -1;
+    max-width: 100%;
+  }
+
   .formation-toolbar {
     align-items: stretch;
     flex-direction: column;
@@ -621,7 +685,7 @@
   }
 
   .soccer-field {
-    min-height: 500px;
+    min-height: 620px;
   }
 
   .formation-side-panel {

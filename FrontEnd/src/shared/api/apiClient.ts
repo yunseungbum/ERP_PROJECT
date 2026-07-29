@@ -1,4 +1,5 @@
 import { getAccessToken } from '../auth/accessTokenStore'
+import { notifySessionExpired } from '../auth/sessionExpiration'
 
 const apiBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080'
@@ -115,6 +116,10 @@ function createHeaders(hasJsonBody = false): HeadersInit {
 async function ensureSuccess(response: Response): Promise<void> {
   if (response.ok) {
     return
+  }
+
+  if (response.status === 401 && getAccessToken()) {
+    notifySessionExpired()
   }
 
   const problem = await readProblem(response)

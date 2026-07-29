@@ -32,3 +32,24 @@ export function updateMemberDueNote(
     { content },
   )
 }
+
+export function updateMemberDueExecution(
+  memberId: number,
+  year: number,
+  amount: number,
+): Promise<{ amount: number }> {
+  return apiPut<{ amount: number }, { amount: number }>(
+    `/api/dues/${year}/members/${memberId}/execution`,
+    { amount },
+  )
+}
+
+export function updateDuesSummaryNote(
+  year: number,
+  content: string,
+): Promise<{ content: string }> {
+  return apiPut<{ content: string }, { content: string }>(
+    `/api/dues/${year}/summary-note`,
+    { content },
+  )
+}

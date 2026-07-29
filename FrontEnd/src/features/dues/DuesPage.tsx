@@ -4,7 +4,9 @@ import { hasPermission } from '../../shared/auth/hasPermission'
 import type { UserRole } from '../../shared/auth/roles'
 import {
   getDuesMatrix,
+  updateDuesSummaryNote,
   updateMemberDue,
+  updateMemberDueExecution,
   updateMemberDueNote,
 } from './duesApi'
 import type { DuesMatrixResponse } from './duesTypes'
@@ -33,6 +35,14 @@ export function DuesPage({ userRoles }: DuesPageProps) {
   } | null>(null)
   const [noteContent, setNoteContent] = useState('')
   const [isNoteSaving, setIsNoteSaving] = useState(false)
+  const [executionDrafts, setExecutionDrafts] = useState<
+    Record<number, string>
+  >({})
+  const [savingExecutionMemberId, setSavingExecutionMemberId] =
+    useState<number | null>(null)
+  const [isSummaryNoteOpen, setIsSummaryNoteOpen] = useState(false)
+  const [summaryNoteContent, setSummaryNoteContent] = useState('')
+  const [isSummaryNoteSaving, setIsSummaryNoteSaving] = useState(false)
 
   useEffect(() => {
     void loadDues(selectedYear)
@@ -43,7 +53,17 @@ export function DuesPage({ userRoles }: DuesPageProps) {
     setErrorMessage('')
 
     try {
-      setMatrix(await getDuesMatrix(year))
+      const response = await getDuesMatrix(year)
+      setMatrix(response)
+      setExecutionDrafts(
+        Object.fromEntries(
+          response.members.map((member) => [
+            member.memberId,
+            String(member.executionAmount),
+          ]),
+        ),
+      )
+      setSummaryNoteContent(response.summaryNote)
     } catch (error) {
       setErrorMessage(getDuesErrorMessage(error))
     } finally {
@@ -118,6 +138,50 @@ export function DuesPage({ userRoles }: DuesPageProps) {
     }
   }
 
+  async function handleExecutionSave(memberId: number) {
+    if (!matrix) return
+
+    const amount = Number(executionDrafts[memberId] ?? 0)
+    const member = matrix.members.find((item) => item.memberId === memberId)
+
+    if (!Number.isFinite(amount) || amount < 0) {
+      window.alert('집행액은 0 이상의 숫자로 입력해 주세요.')
+      setExecutionDrafts((current) => ({
+        ...current,
+        [memberId]: String(member?.executionAmount ?? 0),
+      }))
+      return
+    }
+
+    if (amount === member?.executionAmount) return
+
+    setSavingExecutionMemberId(memberId)
+    try {
+      await updateMemberDueExecution(memberId, selectedYear, amount)
+      await loadDues(selectedYear)
+    } catch (error) {
+      window.alert(getDuesErrorMessage(error))
+    } finally {
+      setSavingExecutionMemberId(null)
+    }
+  }
+
+  async function handleSummaryNoteSave() {
+    setIsSummaryNoteSaving(true)
+    try {
+      await updateDuesSummaryNote(
+        selectedYear,
+        summaryNoteContent.trim(),
+      )
+      setIsSummaryNoteOpen(false)
+      await loadDues(selectedYear)
+    } catch (error) {
+      window.alert(getDuesErrorMessage(error))
+    } finally {
+      setIsSummaryNoteSaving(false)
+    }
+  }
+
   return (
     <main className="dashboard-main dues-page">
       <header className="dues-header">
@@ -143,23 +207,44 @@ export function DuesPage({ userRoles }: DuesPageProps) {
 
       <section className="dues-summary" aria-label="회비 요약">
         <article>
-          <span>누적 납부액</span>
+          <span>집행액</span>
+          <strong>
+            {(matrix?.totalExecutionAmount ?? 0)
+              .toLocaleString('ko-KR')}원
+          </strong>
+        </article>
+        <article>
+          <span>납부액</span>
           <strong className="is-paid">
             {(matrix?.totalPaidAmount ?? 0).toLocaleString('ko-KR')}원
           </strong>
         </article>
         <article>
-          <span>총 미납액</span>
-          <strong className="is-unpaid">
-            {(matrix?.totalUnpaidAmount ?? 0)
+          <span>지출액</span>
+          <strong className="is-expense">
+            {(matrix?.totalExpenseAmount ?? 0)
               .toLocaleString('ko-KR')}원
           </strong>
         </article>
         <article>
-          <span>미납 회원</span>
-          <strong className="is-unpaid">
-            {matrix?.unpaidMemberCount ?? 0}명
+          <span>차액</span>
+          <strong className={
+            (matrix?.balanceAmount ?? 0) < 0
+              ? 'is-unpaid'
+              : 'is-paid'
+          }>
+            {(matrix?.balanceAmount ?? 0).toLocaleString('ko-KR')}원
           </strong>
+        </article>
+        <article>
+          <span>비고</span>
+          <button
+            type="button"
+            className="dues-summary-note-button"
+            onClick={() => setIsSummaryNoteOpen(true)}
+          >
+            {matrix?.summaryNote || (canWriteDues ? '비고 작성' : '-')}
+          </button>
         </article>
       </section>
 
@@ -197,6 +282,9 @@ export function DuesPage({ userRoles }: DuesPageProps) {
                   <th className="dues-fixed dues-fixed-uniform">
                     유니폼
                   </th>
+                  <th className="dues-fixed dues-fixed-execution">
+                    집행액
+                  </th>
                   <th className="dues-fixed dues-fixed-paid">
                     납부 합계
                   </th>
@@ -223,6 +311,41 @@ export function DuesPage({ userRoles }: DuesPageProps) {
                     </td>
                     <td className="dues-fixed dues-fixed-uniform">
                       {member.hasUniform ? 'O' : 'X'}
+                    </td>
+                    <td className="dues-fixed dues-fixed-execution">
+                      {canWriteDues ? (
+                        <input
+                          type="number"
+                          min="0"
+                          step="1000"
+                          className="dues-execution-input"
+                          disabled={
+                            savingExecutionMemberId === member.memberId
+                          }
+                          value={
+                            executionDrafts[member.memberId] ??
+                            String(member.executionAmount)
+                          }
+                          onChange={(event) =>
+                            setExecutionDrafts((current) => ({
+                              ...current,
+                              [member.memberId]: event.target.value,
+                            }))
+                          }
+                          onBlur={() =>
+                            void handleExecutionSave(member.memberId)
+                          }
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                              event.currentTarget.blur()
+                            }
+                          }}
+                          aria-label={`${member.memberName} 집행액`}
+                        />
+                      ) : (
+                        `${member.executionAmount
+                          .toLocaleString('ko-KR')}원`
+                      )}
                     </td>
                     <td className="dues-fixed dues-fixed-paid dues-paid-total">
                       {member.paidTotal.toLocaleString('ko-KR')}원
@@ -283,6 +406,9 @@ export function DuesPage({ userRoles }: DuesPageProps) {
                   <th className="dues-fixed dues-fixed-no" />
                   <th className="dues-fixed dues-fixed-name">합계</th>
                   <th className="dues-fixed dues-fixed-uniform" />
+                  <td className="dues-fixed dues-fixed-execution">
+                    {matrix.totalExecutionAmount.toLocaleString('ko-KR')}
+                  </td>
                   <td className="dues-fixed dues-fixed-paid">
                     {matrix.totalPaidAmount.toLocaleString('ko-KR')}
                   </td>
@@ -302,6 +428,65 @@ export function DuesPage({ userRoles }: DuesPageProps) {
           </div>
         )}
       </section>
+
+      {isSummaryNoteOpen && (
+        <div className="dues-note-backdrop" role="presentation">
+          <div
+            className="dues-note-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dues-summary-note-title"
+          >
+            <header>
+              <h2 id="dues-summary-note-title">
+                {selectedYear}년 회비 비고
+              </h2>
+              <button
+                type="button"
+                aria-label="닫기"
+                onClick={() => setIsSummaryNoteOpen(false)}
+              >
+                ×
+              </button>
+            </header>
+            <div className="dues-note-body">
+              {canWriteDues ? (
+                <textarea
+                  rows={6}
+                  maxLength={1000}
+                  value={summaryNoteContent}
+                  placeholder="연도별 회비 관련 비고를 입력해 주세요."
+                  onChange={(event) =>
+                    setSummaryNoteContent(event.target.value)
+                  }
+                />
+              ) : (
+                <p>
+                  {summaryNoteContent || '등록된 비고가 없습니다.'}
+                </p>
+              )}
+              <div className="dues-note-actions">
+                <button
+                  type="button"
+                  onClick={() => setIsSummaryNoteOpen(false)}
+                >
+                  {canWriteDues ? '취소' : '닫기'}
+                </button>
+                {canWriteDues && (
+                  <button
+                    type="button"
+                    className="is-primary"
+                    disabled={isSummaryNoteSaving}
+                    onClick={() => void handleSummaryNoteSave()}
+                  >
+                    {isSummaryNoteSaving ? '저장 중...' : '저장'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {noteMember && (
         <div className="dues-note-backdrop" role="presentation">

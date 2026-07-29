@@ -77,4 +77,50 @@ public sealed class DuesController(
             return BadRequest(new ProblemDetails { Detail = exception.Message });
         }
     }
+
+    [Authorize(Roles = DueWriters)]
+    [HttpPut("{year:int}/members/{memberId:long}/execution")]
+    public async Task<ActionResult<DuesExecutionResponse>>
+        UpdateExecutionAmount(
+            int year,
+            long memberId,
+            DuesExecutionUpdateRequest request,
+            CancellationToken cancellationToken)
+    {
+        try
+        {
+            var execution =
+                await memberDueService.UpdateExecutionAmountAsync(
+                    memberId,
+                    year,
+                    request,
+                    cancellationToken);
+            return execution is null ? NotFound() : Ok(execution);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new ProblemDetails { Detail = exception.Message });
+        }
+    }
+
+    [Authorize(Roles = DueWriters)]
+    [HttpPut("{year:int}/summary-note")]
+    public async Task<ActionResult<DuesSummaryNoteResponse>>
+        UpdateSummaryNote(
+            int year,
+            DuesSummaryNoteUpdateRequest request,
+            CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok(await memberDueService.UpdateSummaryNoteAsync(
+                year,
+                request,
+                cancellationToken));
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new ProblemDetails { Detail = exception.Message });
+        }
+    }
 }

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuddyErp.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260728055408_AddMemberDueNotes")]
-    partial class AddMemberDueNotes
+    [Migration("20260729015855_AddDuesExecutionAndYearSummary")]
+    partial class AddDuesExecutionAndYearSummary
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

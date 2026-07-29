@@ -22,6 +22,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<MemberDue> MemberDues => Set<MemberDue>();
     public DbSet<MemberDueNote> MemberDueNotes => Set<MemberDueNote>();
+    public DbSet<DuesYearSummary> DuesYearSummaries =>
+        Set<DuesYearSummary>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -563,6 +565,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             .HasColumnName("member_id");
         memberDueNote.Property(x => x.DueYear)
             .HasColumnName("due_year");
+        memberDueNote.Property(x => x.ExecutionAmount)
+            .HasColumnName("execution_amount")
+            .HasPrecision(12, 0)
+            .HasDefaultValue(0)
+            .IsRequired();
         memberDueNote.Property(x => x.Content)
             .HasColumnName("content")
             .HasMaxLength(1000)
@@ -583,5 +590,27 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             .WithMany()
             .HasForeignKey(x => x.MemberId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        var duesYearSummary = modelBuilder.Entity<DuesYearSummary>();
+
+        duesYearSummary.ToTable("dues_year_summaries");
+        duesYearSummary.HasKey(x => x.DuesYearSummaryId);
+        duesYearSummary.Property(x => x.DuesYearSummaryId)
+            .HasColumnName("dues_year_summary_id")
+            .ValueGeneratedOnAdd();
+        duesYearSummary.Property(x => x.DueYear)
+            .HasColumnName("due_year");
+        duesYearSummary.HasIndex(x => x.DueYear)
+            .IsUnique();
+        duesYearSummary.Property(x => x.Notes)
+            .HasColumnName("notes")
+            .HasMaxLength(1000)
+            .IsRequired();
+        duesYearSummary.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        duesYearSummary.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
     }
 }

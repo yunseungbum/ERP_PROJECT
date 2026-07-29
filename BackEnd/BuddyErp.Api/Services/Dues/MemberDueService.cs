@@ -40,13 +40,26 @@ public sealed class MemberDueService(
         var existingDues = await dbContext.MemberDues
             .Where(due => due.DueYear == year)
             .ToListAsync(cancellationToken);
-        var dueNotes = await dbContext.MemberDueNotes
+        var dueDetails = await dbContext.MemberDueNotes
             .AsNoTracking()
             .Where(note => note.DueYear == year)
             .ToDictionaryAsync(
                 note => note.MemberId,
-                note => note.Content,
+                note => note,
                 cancellationToken);
+        var summaryNote = await dbContext.DuesYearSummaries
+            .AsNoTracking()
+            .Where(summary => summary.DueYear == year)
+            .Select(summary => summary.Notes)
+            .SingleOrDefaultAsync(cancellationToken)
+            ?? string.Empty;
+        var totalExpenseAmount = await dbContext.Expenses
+            .AsNoTracking()
+            .Where(expense => expense.PaymentDate.Year == year)
+            .SumAsync(
+                expense => (decimal?)expense.Amount,
+                cancellationToken)
+            ?? 0;
         var dueLookup = existingDues.ToDictionary(
             due => (due.MemberId, due.DueMonth));
         var newDues = new List<MemberDue>();
@@ -145,18 +158,30 @@ public sealed class MemberDueService(
                 member.MemberName,
                 isPaused,
                 member.HasUniform,
+                dueDetails.GetValueOrDefault(member.MemberId)
+                    ?.ExecutionAmount ?? 0,
                 paidTotal,
                 unpaidTotal,
-                dueNotes.GetValueOrDefault(member.MemberId) ?? string.Empty,
+                dueDetails.GetValueOrDefault(member.MemberId)
+                    ?.Content ?? string.Empty,
                 cells);
         }).ToList();
+
+        var totalExecutionAmount = memberResponses.Sum(
+            member => member.ExecutionAmount);
+        var totalPaidAmount = memberResponses.Sum(
+            member => member.PaidTotal);
 
         return new DuesMatrixResponse(
             year,
             MonthlyFee,
-            memberResponses.Sum(member => member.PaidTotal),
+            totalExecutionAmount,
+            totalPaidAmount,
+            totalExpenseAmount,
+            totalPaidAmount - totalExpenseAmount,
             memberResponses.Sum(member => member.UnpaidTotal),
             memberResponses.Count(member => member.UnpaidTotal > 0),
+            summaryNote,
             memberResponses);
     }
 
@@ -268,6 +293,83 @@ public sealed class MemberDueService(
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return new DuesNoteResponse(note.Content);
+    }
+
+    public async Task<DuesExecutionResponse?> UpdateExecutionAmountAsync(
+        long memberId,
+        int year,
+        DuesExecutionUpdateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ValidateYear(year);
+        var memberExists = await dbContext.Members.AnyAsync(
+            member => member.MemberId == memberId && member.IsActive,
+            cancellationToken);
+        if (!memberExists)
+        {
+            return null;
+        }
+
+        var detail = await dbContext.MemberDueNotes.SingleOrDefaultAsync(
+            item => item.MemberId == memberId && item.DueYear == year,
+            cancellationToken);
+        var now = DateTime.UtcNow;
+
+        if (detail is null)
+        {
+            detail = new MemberDueNote
+            {
+                MemberId = memberId,
+                DueYear = year,
+                ExecutionAmount = request.Amount,
+                Content = string.Empty,
+                CreatedAt = now,
+                UpdatedAt = now,
+            };
+            dbContext.MemberDueNotes.Add(detail);
+        }
+        else
+        {
+            detail.ExecutionAmount = request.Amount;
+            detail.UpdatedAt = now;
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return new DuesExecutionResponse(detail.ExecutionAmount);
+    }
+
+    public async Task<DuesSummaryNoteResponse> UpdateSummaryNoteAsync(
+        int year,
+        DuesSummaryNoteUpdateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ValidateYear(year);
+        var content = request.Content?.Trim() ?? string.Empty;
+        var summary = await dbContext.DuesYearSummaries
+            .SingleOrDefaultAsync(
+                item => item.DueYear == year,
+                cancellationToken);
+        var now = DateTime.UtcNow;
+
+        if (summary is null)
+        {
+            summary = new DuesYearSummary
+            {
+                DueYear = year,
+                Notes = content,
+                CreatedAt = now,
+                UpdatedAt = now,
+            };
+            dbContext.DuesYearSummaries.Add(summary);
+        }
+        else
+        {
+            summary.Notes = content;
+            summary.UpdatedAt = now;
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return new DuesSummaryNoteResponse(summary.Notes);
     }
 
     private static string ToDisplayStatus(string status)

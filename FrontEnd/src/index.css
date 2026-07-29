@@ -15,6 +15,50 @@ body {
   margin: 0;
 }
 
+.session-expired-backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 30, 52, .46);
+}
+
+.session-expired-modal {
+  width: min(360px, 100%);
+  padding: 26px;
+  border: 1px solid #dce6f3;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 22px 60px rgba(20, 48, 88, .24);
+  text-align: center;
+}
+
+.session-expired-modal h2 {
+  margin: 0 0 10px;
+  color: #10213d;
+  font-size: 22px;
+}
+
+.session-expired-modal p {
+  margin: 0 0 20px;
+  color: #66758b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.session-expired-modal button {
+  min-width: 110px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #2479eb;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 button,
 input {
   font: inherit;

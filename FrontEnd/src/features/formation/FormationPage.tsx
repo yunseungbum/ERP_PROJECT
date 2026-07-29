@@ -153,6 +153,7 @@ export function FormationPage({ userRoles }: FormationPageProps) {
   const [memberLoadError, setMemberLoadError] = useState('')
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([])
   const [guestName, setGuestName] = useState('')
+  const [isMemberSelectorOpen, setIsMemberSelectorOpen] = useState(true)
   const [participants, setParticipants] = useState<Participant[]>([])
   const [activeQuarter, setActiveQuarter] = useState<Quarter>(1)
   const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null)
@@ -231,6 +232,13 @@ export function FormationPage({ userRoles }: FormationPageProps) {
       ]),
     ),
     [participants],
+  )
+
+  const memberParticipants = participants.filter(
+    (participant) => !participant.isGuest,
+  )
+  const guestParticipants = participants.filter(
+    (participant) => participant.isGuest,
   )
 
   const memberMap = useMemo(
@@ -403,6 +411,20 @@ export function FormationPage({ userRoles }: FormationPageProps) {
     participantId = selectedParticipantId,
   ) {
     if (!participantId) {
+      setDraftPlan((currentPlan) => {
+        if (!currentPlan.lineup[slotId]) {
+          return currentPlan
+        }
+
+        const nextLineup = { ...currentPlan.lineup }
+        delete nextLineup[slotId]
+
+        return {
+          ...currentPlan,
+          lineup: nextLineup,
+        }
+      })
+      setSaveMessage('')
       return
     }
 
@@ -538,14 +560,7 @@ export function FormationPage({ userRoles }: FormationPageProps) {
     >
       <header className="formation-header">
         <div>
-          <p>
-            가장 가까운 경기 ·{' '}
-            {matchStartsAt
-              ? new Date(matchStartsAt).toLocaleDateString('ko-KR')
-              : '불러오는 중'}
-          </p>
           <h1>포메이션 관리</h1>
-          <strong>{matchTitle || '경기 정보를 불러오는 중입니다.'}</strong>
         </div>
         <span>DB 저장 연결</span>
       </header>
@@ -588,6 +603,9 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                       <option value="4-3-3">4-3-3</option>
                     </select>
                   </label>
+                  <p className="formation-toolbar-match">
+                    {matchTitle || '경기 정보를 불러오는 중입니다.'}
+                  </p>
                 </div>
                 <div className="formation-toolbar-actions">
                   <button type="button" onClick={clearActiveQuarter}>
@@ -711,63 +729,85 @@ export function FormationPage({ userRoles }: FormationPageProps) {
           <section className="formation-panel">
             <div className="formation-panel-heading">
               <h2>회원 및 용병 선택</h2>
-              <span>{selectedMemberIds.length}명 선택</span>
-            </div>
-
-            {isLoadingMembers && <p className="formation-message">회원 목록을 불러오는 중입니다.</p>}
-            {memberLoadError && <p className="formation-error">{memberLoadError}</p>}
-
-            {!isLoadingMembers && !memberLoadError && (
-              <div className="formation-member-list">
-                {members.map((member) => (
-                  <label key={member.memberId}>
-                    <input
-                      type="checkbox"
-                      checked={selectedMemberIds.includes(member.memberId)}
-                      onChange={() => toggleMember(member.memberId)}
-                    />
-                    <span>{member.memberName}</span>
-                    <small>
-                      {member.hasUniform && member.uniformNumber !== null
-                        ? member.uniformNumber
-                        : '-'}
-                    </small>
-                  </label>
-                ))}
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="formation-primary-button"
-              disabled={selectedMemberIds.length === 0 || isSaving}
-              onClick={() => void addSelectedMembers()}
-            >
-              {isSaving ? '저장 중...' : '선택 인원 추가'}
-            </button>
-
-            <div className="formation-guest-form">
-              <input
-                value={guestName}
-                maxLength={20}
-                placeholder="용병 이름"
-                onChange={(event) => setGuestName(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    void addGuest()
+              <div className="formation-panel-heading-actions">
+                <span>{selectedMemberIds.length}명 선택</span>
+                <button
+                  type="button"
+                  className={[
+                    'formation-panel-toggle',
+                    isMemberSelectorOpen ? 'is-open' : '',
+                  ].join(' ')}
+                  aria-label={
+                    isMemberSelectorOpen
+                      ? '회원 및 용병 선택 닫기'
+                      : '회원 및 용병 선택 열기'
                   }
-                }}
-              />
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={() => void addGuest()}
-              >
-                용병 추가
-              </button>
+                  aria-expanded={isMemberSelectorOpen}
+                  onClick={() => setIsMemberSelectorOpen((isOpen) => !isOpen)}
+                >
+                  ▼
+                </button>
+              </div>
             </div>
-            {apiError && (
-              <p className="formation-error" role="alert">{apiError}</p>
+
+            {isMemberSelectorOpen && (
+              <div className="formation-member-selector-content">
+                {isLoadingMembers && <p className="formation-message">회원 목록을 불러오는 중입니다.</p>}
+                {memberLoadError && <p className="formation-error">{memberLoadError}</p>}
+
+                {!isLoadingMembers && !memberLoadError && (
+                  <div className="formation-member-list">
+                    {members.map((member) => (
+                      <label key={member.memberId}>
+                        <input
+                          type="checkbox"
+                          checked={selectedMemberIds.includes(member.memberId)}
+                          onChange={() => toggleMember(member.memberId)}
+                        />
+                        <span>{member.memberName}</span>
+                        <small>
+                          {member.hasUniform && member.uniformNumber !== null
+                            ? member.uniformNumber
+                            : '-'}
+                        </small>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  className="formation-primary-button"
+                  disabled={selectedMemberIds.length === 0 || isSaving}
+                  onClick={() => void addSelectedMembers()}
+                >
+                  {isSaving ? '저장 중...' : '선택 인원 추가'}
+                </button>
+
+                <div className="formation-guest-form">
+                  <input
+                    value={guestName}
+                    maxLength={20}
+                    placeholder="용병 이름"
+                    onChange={(event) => setGuestName(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        void addGuest()
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    disabled={isSaving}
+                    onClick={() => void addGuest()}
+                  >
+                    용병 추가
+                  </button>
+                </div>
+                {apiError && (
+                  <p className="formation-error" role="alert">{apiError}</p>
+                )}
+              </div>
             )}
           </section>
 
@@ -801,14 +841,18 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {participants.map((participant) => (
+                    <tr className="participation-group-row">
+                      <th colSpan={7}>
+                        회원
+                        <span>{memberParticipants.length}명</span>
+                      </th>
+                    </tr>
+                    {memberParticipants.map((participant) => (
                       <tr key={participant.participantId}>
                         <td>
                           {participant.participantName}
                           <small>
-                            {participant.isGuest
-                              ? '용병'
-                              : `등번호 ${getUniformLabel(participant)}`}
+                            {`등번호 ${getUniformLabel(participant)}`}
                           </small>
                         </td>
                         {participant.quarterParticipation.map((isPlaying, index) => (
@@ -833,6 +877,44 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                         </td>
                       </tr>
                     ))}
+                    {guestParticipants.length > 0 && (
+                      <>
+                        <tr className="participation-group-row is-guest">
+                          <th colSpan={7}>
+                            용병
+                            <span>{guestParticipants.length}명</span>
+                          </th>
+                        </tr>
+                        {guestParticipants.map((participant) => (
+                          <tr key={participant.participantId}>
+                            <td>
+                              {participant.participantName}
+                              <small>용병</small>
+                            </td>
+                            {participant.quarterParticipation.map((isPlaying, index) => (
+                              <td key={`${participant.participantId}-${index}`}>
+                                <span className={isPlaying ? 'is-playing' : ''}>
+                                  {isPlaying ? 'O' : 'X'}
+                                </span>
+                              </td>
+                            ))}
+                            <td>
+                              {participant.quarterParticipation.filter(Boolean).length}쿼터
+                            </td>
+                            <td>
+                              <button
+                                type="button"
+                                className="participation-remove-button"
+                                disabled={isSaving}
+                                onClick={() => void removeParticipation(participant)}
+                              >
+                                빼기
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    )}
                   </tbody>
                 </table>
               </div>
