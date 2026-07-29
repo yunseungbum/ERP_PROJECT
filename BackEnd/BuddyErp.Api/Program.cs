@@ -126,14 +126,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var app = builder.Build();
 
-// 새 배포 DB가 비어 있어도 서버 시작 시 EF Core가 필요한 테이블을 만듭니다.
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider
-        .GetRequiredService<AppDbContext>();
-    await dbContext.Database.MigrateAsync();
-}
-
 if (args.Contains("--seed-initial-accounts", StringComparer.Ordinal))
 {
     using var scope = app.Services.CreateScope();
