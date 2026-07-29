@@ -16,7 +16,7 @@ public sealed class MemberDueService(
     private const string UnpaidStatus = "Unpaid";
     private const string ExemptStatus = "Exempt";
     private const int FirstDuesYear = 2026;
-    private const int FirstDuesMonth = 5;
+    private const int FirstDuesMonth = 4;
 
     public async Task<DuesMatrixResponse> GetDuesMatrixAsync(
         int year,
@@ -200,7 +200,7 @@ public sealed class MemberDueService(
         if (IsBeforeDuesStart(year, month))
         {
             throw new ArgumentException(
-                "2026년 1월부터 4월까지는 회비 대상이 아닙니다.");
+                "2026년 1월부터 3월까지는 회비 대상이 아닙니다.");
         }
 
         var status = request.Status.Trim().ToUpperInvariant();

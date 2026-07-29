@@ -378,7 +378,7 @@ export function DuesPage({ userRoles }: DuesPageProps) {
                         )}`}
                       >
                         {canWriteDues &&
-                        !(selectedYear === 2026 && due.month <= 4) ? (
+                        !(selectedYear === 2026 && due.month < 4) ? (
                           <button
                             type="button"
                             disabled={

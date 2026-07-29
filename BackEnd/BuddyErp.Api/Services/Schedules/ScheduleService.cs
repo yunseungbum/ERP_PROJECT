@@ -151,7 +151,7 @@ public sealed class ScheduleService(AppDbContext dbContext) : IScheduleService
             PaymentDate = schedule.StartsAt,
             Notes = BuildVenueExpenseNotes(schedule),
             PayerName = schedule.PayerName,
-            IsSettled = schedule.IsMatchFeePaid,
+            IsSettled = false,
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -166,7 +166,6 @@ public sealed class ScheduleService(AppDbContext dbContext) : IScheduleService
         expense.PaymentDate = schedule.StartsAt;
         expense.Notes = BuildVenueExpenseNotes(schedule);
         expense.PayerName = schedule.PayerName;
-        expense.IsSettled = schedule.IsMatchFeePaid;
         expense.UpdatedAt = schedule.UpdatedAt;
     }
 
