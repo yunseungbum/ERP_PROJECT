@@ -21,7 +21,7 @@ public sealed class ScheduleService(AppDbContext dbContext) : IScheduleService
     {
         return await dbContext.MatchSchedules
             .AsNoTracking()
-            .OrderBy(schedule => schedule.StartsAt)
+            .OrderByDescending(schedule => schedule.StartsAt)
             .Select(schedule => new ScheduleResponse(
                 schedule.ScheduleId,
                 schedule.VenueName,

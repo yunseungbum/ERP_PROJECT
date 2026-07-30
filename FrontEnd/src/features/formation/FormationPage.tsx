@@ -158,6 +158,8 @@ export function FormationPage({ userRoles }: FormationPageProps) {
   const [activeQuarter, setActiveQuarter] = useState<Quarter>(1)
   const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null)
   const [draggedParticipantId, setDraggedParticipantId] = useState<number | null>(null)
+  const [draggedSlotId, setDraggedSlotId] = useState<string | null>(null)
+  const [removingSlotId, setRemovingSlotId] = useState<string | null>(null)
   const [savedQuarterPlans, setSavedQuarterPlans] = useState<QuarterPlans>(createEmptyQuarterPlans)
   const [draftPlan, setDraftPlan] = useState<QuarterPlan>(() => (
     copyQuarterPlan(createEmptyQuarterPlans()[1])
@@ -264,6 +266,16 @@ export function FormationPage({ userRoles }: FormationPageProps) {
   )
 
   const formationSlots = formationTemplates[draftPlan.formationCode]
+  const assignedParticipantIds = useMemo(
+    () => new Set(Object.values(draftPlan.lineup)),
+    [draftPlan.lineup],
+  )
+  const availableParticipants = participants.filter(
+    (participant) => !assignedParticipantIds.has(participant.participantId),
+  )
+  const removingParticipant = removingSlotId
+    ? participantMap.get(draftPlan.lineup[removingSlotId])
+    : null
 
   const duplicateParticipantIds = useMemo(() => {
     const participantCounts = new Map<number, number>()
@@ -428,15 +440,95 @@ export function FormationPage({ userRoles }: FormationPageProps) {
       return
     }
 
-    setDraftPlan((currentPlan) => ({
-      ...currentPlan,
-      lineup: {
-        ...currentPlan.lineup,
-        [slotId]: participantId,
-      },
-    }))
+    setDraftPlan((currentPlan) => {
+      const nextLineup = { ...currentPlan.lineup }
+
+      for (const [currentSlotId, currentParticipantId] of Object.entries(
+        nextLineup,
+      )) {
+        if (currentParticipantId === participantId) {
+          delete nextLineup[currentSlotId]
+        }
+      }
+
+      nextLineup[slotId] = participantId
+
+      return {
+        ...currentPlan,
+        lineup: nextLineup,
+      }
+    })
     setSelectedParticipantId(null)
     setDraggedParticipantId(null)
+    setDraggedSlotId(null)
+    setSaveMessage('')
+  }
+
+  function dropParticipant(targetSlotId: string) {
+    if (!draggedParticipantId) {
+      return
+    }
+
+    setDraftPlan((currentPlan) => {
+      const nextLineup = { ...currentPlan.lineup }
+
+      if (draggedSlotId) {
+        if (draggedSlotId === targetSlotId) {
+          return currentPlan
+        }
+
+        const sourceParticipantId = nextLineup[draggedSlotId]
+        if (!sourceParticipantId) {
+          return currentPlan
+        }
+
+        const targetParticipantId = nextLineup[targetSlotId]
+        nextLineup[targetSlotId] = sourceParticipantId
+
+        if (targetParticipantId) {
+          nextLineup[draggedSlotId] = targetParticipantId
+        } else {
+          delete nextLineup[draggedSlotId]
+        }
+      } else {
+        for (const [currentSlotId, currentParticipantId] of Object.entries(
+          nextLineup,
+        )) {
+          if (currentParticipantId === draggedParticipantId) {
+            delete nextLineup[currentSlotId]
+          }
+        }
+
+        nextLineup[targetSlotId] = draggedParticipantId
+      }
+
+      return {
+        ...currentPlan,
+        lineup: nextLineup,
+      }
+    })
+
+    setSelectedParticipantId(null)
+    setDraggedParticipantId(null)
+    setDraggedSlotId(null)
+    setSaveMessage('')
+  }
+
+  function removeParticipantFromSlot() {
+    if (!removingSlotId) {
+      return
+    }
+
+    setDraftPlan((currentPlan) => {
+      const nextLineup = { ...currentPlan.lineup }
+      delete nextLineup[removingSlotId]
+
+      return {
+        ...currentPlan,
+        lineup: nextLineup,
+      }
+    })
+    setRemovingSlotId(null)
     setSaveMessage('')
   }
 
@@ -648,18 +740,28 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                       ].join(' ')}
                       style={{ left: `${slot.left}%`, top: `${slot.top}%` }}
                       disabled={!canManageFormations}
-                      onClick={() => assignParticipant(slot.slotId)}
+                      onClick={() => {
+                        if (participant) {
+                          setRemovingSlotId(slot.slotId)
+                        } else {
+                          assignParticipant(slot.slotId)
+                        }
+                      }}
                       draggable={canManageFormations && Boolean(participant)}
                       onDragStart={() => {
                         if (participantId) {
                           setDraggedParticipantId(participantId)
+                          setDraggedSlotId(slot.slotId)
                         }
                       }}
-                      onDragEnd={() => setDraggedParticipantId(null)}
+                      onDragEnd={() => {
+                        setDraggedParticipantId(null)
+                        setDraggedSlotId(null)
+                      }}
                       onDragOver={(event) => event.preventDefault()}
                       onDrop={(event) => {
                         event.preventDefault()
-                        assignParticipant(slot.slotId, draggedParticipantId)
+                        dropParticipant(slot.slotId)
                       }}
                     >
                       <span className="formation-shirt">
@@ -683,10 +785,14 @@ export function FormationPage({ userRoles }: FormationPageProps) {
               )}
 
               <div className="formation-candidates">
-                {participants.length === 0 ? (
-                  <p>오른쪽에서 참여 인원을 추가하면 선수 아이콘이 생성됩니다.</p>
+                {availableParticipants.length === 0 ? (
+                  <p>
+                    {participants.length === 0
+                      ? '오른쪽에서 참여 인원을 추가하면 선수 아이콘이 생성됩니다.'
+                      : '모든 선수가 현재 쿼터 필드에 배치되었습니다.'}
+                  </p>
                 ) : (
-                  participants.map((participant) => (
+                  availableParticipants.map((participant) => (
                     <button
                       key={participant.participantId}
                       type="button"
@@ -701,10 +807,14 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                           ? null
                           : participant.participantId
                       ))}
-                      onDragStart={() => setDraggedParticipantId(
-                        participant.participantId,
-                      )}
-                      onDragEnd={() => setDraggedParticipantId(null)}
+                      onDragStart={() => {
+                        setDraggedParticipantId(participant.participantId)
+                        setDraggedSlotId(null)
+                      }}
+                      onDragEnd={() => {
+                        setDraggedParticipantId(null)
+                        setDraggedSlotId(null)
+                      }}
                     >
                       <span>{getUniformLabel(participant)}</span>
                       {participant.participantName}
@@ -952,6 +1062,35 @@ export function FormationPage({ userRoles }: FormationPageProps) {
                 onClick={() => void saveAndMoveQuarter()}
               >
                 {isSaving ? '저장 중...' : '저장 후 이동'}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {removingSlotId && removingParticipant && (
+        <div className="formation-modal-backdrop" role="presentation">
+          <section
+            className="formation-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="formation-remove-player-title"
+          >
+            <h2 id="formation-remove-player-title">선수를 뺄까요?</h2>
+            <p>
+              {removingParticipant.participantName} 선수를 필드에서 빼면
+              아래 선수 명단으로 다시 이동합니다.
+            </p>
+            <div className="formation-modal-actions">
+              <button type="button" onClick={() => setRemovingSlotId(null)}>
+                취소
+              </button>
+              <button
+                type="button"
+                className="formation-remove-button"
+                onClick={removeParticipantFromSlot}
+              >
+                빼기
               </button>
             </div>
           </section>

@@ -639,6 +639,12 @@
   cursor: pointer;
 }
 
+.formation-modal-actions .formation-remove-button {
+  border-color: #e05d55;
+  background: #e05d55;
+  color: #fff;
+}
+
 @media (max-width: 1120px) {
   .formation-layout {
     grid-template-columns: 1fr;
